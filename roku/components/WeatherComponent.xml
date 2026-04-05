@@ -3,7 +3,7 @@
   <interface>
     <field id="temperature" type="float"  value="0.0" onChange="OnDataChanged" />
     <field id="iconName"    type="string" value=""    onChange="OnDataChanged" />
-    <field id="unit"        type="string" value="celsius" />
+    <field id="unit"        type="string" value="celsius" onChange="OnDataChanged" />
   </interface>
   <children>
     <!-- 136px total: [48px icon][8px gap][80px text right-aligned] -->
@@ -14,5 +14,6 @@
     <Label  id="tempLabel" color="#FFFFFFFF" font="font:SmallBoldSystemFont"
             translation="[56, 8]" width="80" horizAlign="right" />
   </children>
+  <script type="text/brightscript" uri="pkg:/source/Utils.brs" />
   <script type="text/brightscript" uri="pkg:/components/WeatherComponent.brs" />
 </component>
