@@ -69,7 +69,7 @@ Launch **Immich Lounge** on Roku, enter the companion URL, and choose a profile.
 ![Roku profile selection screen](./assets/screenshots/change-profile.png){ .doc-screenshot }
 <p class="doc-caption">After the Roku reaches the companion, choose the profile you want to use for this device.</p>
 
-If you also want the Roku screensaver, go to Roku Settings, choose **Immich Lounge Screensaver**, and open **Configure Screensaver**.
+If you also want the Roku screensaver, go to `Settings` -> `Theme` -> `Screensavers`, switch to **Immich Lounge Screensaver**, then open **Configure Screensaver**. The full step-by-step flow is in [Using the Roku Apps](./roku-apps.md#change-the-roku-screensaver) and Roku's own help article is [here](https://support.roku.com/article/212015418).
 
 ## API key notes
 

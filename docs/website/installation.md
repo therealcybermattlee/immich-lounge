@@ -88,9 +88,11 @@ Then choose a profile.
 
 ## Screensaver setup
 
-Go to Roku Settings, choose **Immich Lounge Screensaver**, then open **Configure Screensaver**.
+From the Roku home screen, go to `Settings` -> `Theme` -> `Screensavers`, switch the active screensaver to **Immich Lounge Screensaver**, then open **Configure Screensaver**.
 
 The screensaver can share the same companion URL and use either the same or a different profile.
+
+For the step-by-step Roku flow, see [Using the Roku Apps](./roku-apps.md#change-the-roku-screensaver) and Roku's own help article: [How to change the screensaver on your Roku streaming device](https://support.roku.com/article/212015418).
 
 ## Network notes
 

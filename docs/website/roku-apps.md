@@ -25,14 +25,29 @@ The Roku screensaver uses the same companion connection, but it behaves a little
 2. Enter the companion host and keep port `4383`.
 3. Select the profile you want for the channel.
 4. Start playback and confirm the slideshow is working.
-5. If you also want the screensaver, enable **Immich Lounge** in Roku's screensaver settings.
-6. In Roku's screensaver settings, open **Configure Screensaver** to choose the companion and profile for screensaver mode.
+5. If you also want the screensaver, go to `Settings` -> `Theme` -> `Screensavers` and switch the active screensaver to **Immich Lounge Screensaver**.
+6. After it is selected, open **Configure Screensaver** to choose the companion and profile for screensaver mode.
 
 ![Roku companion connection screen](./assets/screenshots/change-companion.png){ .doc-screenshot }
 <p class="doc-caption">Connect the Roku to the companion with the host address and default port <code>4383</code>.</p>
 
 ![Roku profile selection screen](./assets/screenshots/change-profile.png){ .doc-screenshot }
 <p class="doc-caption">Choose the Roku profile after the companion returns the available list.</p>
+
+## Change the Roku Screensaver
+
+Use Roku system settings to change which screensaver the device runs:
+
+1. Go back to the Roku home screen.
+2. Open **Settings**.
+3. Open **Theme**, then **Screensavers**.
+4. Set the active screensaver to **Immich Lounge Screensaver**.
+5. Open **Configure Screensaver**.
+6. Confirm the companion URL, then choose the profile you want the screensaver to use.
+
+Roku's support article for changing screensavers is here: [How to change the screensaver on your Roku streaming device](https://support.roku.com/article/212015418).
+
+If **Immich Lounge Screensaver** is already selected, you only need **Configure Screensaver** to switch it to a different companion or profile.
 
 ## Remote Controls
 
