@@ -47,6 +47,7 @@ Start with the easy checks:
 Check:
 
 - the immich server URL, including port
+- do not use `localhost`, `127.0.0.1`, `::1`, or wildcard bind addresses such as `0.0.0.0`
 - the API key
 - whether the companion host can reach immich on the network
 

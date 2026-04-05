@@ -20,6 +20,8 @@ These settings are shared by every profile:
 - immich server URL
 - immich API key
 
+Use an immich URL that the Roku can reach on your LAN. `localhost`, `127.0.0.1`, `::1`, and wildcard bind addresses are not valid here.
+
 After saving, use **Test Connection** to make sure the companion can reach immich.
 
 ![Immich Lounge companion connection page](./assets/screenshots/companion-connection.png){ .doc-screenshot }

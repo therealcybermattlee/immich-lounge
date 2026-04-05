@@ -43,6 +43,8 @@ On the Connection page, enter:
 - your immich server URL, for example `http://192.168.1.10:2283`
 - an API key from immich
 
+Do not use `localhost`, `127.0.0.1`, or other loopback-only addresses here. The Roku also needs to reach that immich URL directly.
+
 Then click **Test Connection** and save.
 
 If you have not created the key yet, see [Immich API Key](./api-key.md).

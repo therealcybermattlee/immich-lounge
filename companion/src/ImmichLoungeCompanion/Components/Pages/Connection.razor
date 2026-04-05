@@ -25,6 +25,11 @@
         <div class="alert alert-success">Settings saved.</div>
     }
 
+    @if (_errorMessage != null)
+    {
+        <div class="alert alert-error">@_errorMessage</div>
+    }
+
     @if (_testResult != null)
     {
         <div class="alert @(_testResult.Ok ? "alert-success" : "alert-error")">
@@ -46,6 +51,7 @@
     private string _serverUrl = "";
     private string _apiKey = "";
     private bool _saved;
+    private string? _errorMessage;
     private TestResult? _testResult;
 
     protected override async Task OnInitializedAsync()
@@ -59,23 +65,43 @@
         }
     }
 
-    private async Task SaveAsync()
+    private async Task SaveAsync() => await SaveAsyncInternal(showSavedBanner: true);
+
+    private async Task<bool> SaveAsyncInternal(bool showSavedBanner)
     {
-        await Http.PutAsJsonAsync("/api/settings", new
+        _saved = false;
+        _errorMessage = null;
+
+        var response = await Http.PutAsJsonAsync("/api/settings", new
         {
             friendlyName = _friendlyName,
             immich = new { serverUrl = _serverUrl, apiKey = _apiKey }
         });
-        _saved = true;
-        _testResult = null;
+
+        if (response.IsSuccessStatusCode)
+        {
+            _saved = showSavedBanner;
+            _testResult = null;
+            return true;
+        }
+
+        var err = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+        _errorMessage = err?.Error ?? "Failed to save settings.";
+        return false;
     }
 
     private async Task TestConnectionAsync()
     {
-        await SaveAsync();
-        _saved = false;
+        var saved = await SaveAsyncInternal(showSavedBanner: false);
+        if (!saved)
+        {
+            _testResult = null;
+            return;
+        }
+
         _testResult = await Http.GetFromJsonAsync<TestResult>("/api/immich/test");
     }
 
+    private record ErrorResponse(string Error);
     private record TestResult(bool Ok, int ImageCount, int VideoCount, string? Error);
 }

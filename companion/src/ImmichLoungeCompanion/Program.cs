@@ -66,6 +66,8 @@ builder.Services.AddSingleton<ImmichLoungeCompanion.Immich.IImmichClient,
 builder.Services.AddScoped<ImmichLoungeCompanion.Services.CompanionState>();
 builder.Services.AddSingleton<ImmichLoungeCompanion.Services.IDisplayDateFormattingService,
     ImmichLoungeCompanion.Services.DisplayDateFormattingService>();
+builder.Services.AddSingleton<ImmichLoungeCompanion.Services.IImmichSettingsValidator,
+    ImmichLoungeCompanion.Services.ImmichSettingsValidator>();
 builder.Services.AddSingleton<ImmichLoungeCompanion.Services.IProfileValidator,
     ImmichLoungeCompanion.Services.ProfileValidator>();
 builder.Services.AddSingleton<ImmichLoungeCompanion.Services.IProfileDocumentService,

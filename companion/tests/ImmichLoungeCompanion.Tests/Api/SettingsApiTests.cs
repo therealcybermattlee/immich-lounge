@@ -42,4 +42,32 @@ public class SettingsApiTests : IDisposable
         Assert.AreEqual("Living Room Server", loaded!.FriendlyName);
         Assert.AreEqual("abc", loaded.Immich.ApiKey);
     }
+
+    [DataTestMethod]
+    [DataRow("http://localhost:2283")]
+    [DataRow("http://127.0.0.1:2283")]
+    [DataRow("http://[::1]:2283")]
+    [DataRow("http://0.0.0.0:2283")]
+    [DataRow("http://[::]:2283")]
+    public async Task PutSettings_RejectsUrlsTheRokuCannotReach(string serverUrl)
+    {
+        var existing = await _client.GetFromJsonAsync<GlobalSettings>("/api/settings");
+        var updated = new GlobalSettings
+        {
+            FriendlyName = "Loopback Server",
+            Immich = new() { ServerUrl = serverUrl, ApiKey = "abc" }
+        };
+
+        var response = await _client.PutAsJsonAsync("/api/settings", updated);
+        Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+
+        var error = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+        StringAssert.Contains(error!.Error, "LAN-reachable host or IP");
+
+        var loaded = await _client.GetFromJsonAsync<GlobalSettings>("/api/settings");
+        Assert.AreEqual(existing!.Immich.ServerUrl, loaded!.Immich.ServerUrl);
+        Assert.AreEqual(existing.FriendlyName, loaded.FriendlyName);
+    }
+
+    private record ErrorResponse(string Error);
 }
