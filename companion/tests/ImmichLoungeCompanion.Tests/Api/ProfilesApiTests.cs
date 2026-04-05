@@ -141,6 +141,62 @@ public class ProfilesApiTests : IDisposable
     }
 
     [TestMethod]
+    public async Task PutProfile_WithFahrenheitWeatherUnit_PersistsWeatherUnit()
+    {
+        await _client.PostAsJsonAsync("/api/profiles", NewProfileBody("weather-unit"));
+
+        var response = await _client.PutAsJsonAsync("/api/profiles/weather-unit", new
+        {
+            id = "ignored-by-route",
+            schemaVersion = 1,
+            name = "Updated",
+            description = "Updated description",
+            contentSources = Array.Empty<object>(),
+            mediaTypes = new { photos = true, videos = false, videoAudio = false, livePhotos = false },
+            slideshow = new
+            {
+                intervalSeconds = 12,
+                shuffle = false,
+                transitionEffect = "fade",
+                photoMotion = "none",
+                refreshIntervalMinutes = 60,
+                preventScreensaver = false
+            },
+            display = new
+            {
+                formatSource = "profile",
+                overlayStyle = "bottom",
+                backgroundEffect = "blur",
+                overlayFields = new[] { "date" },
+                overlayBehavior = "fade",
+                overlayFadeSeconds = 5,
+                clockAlwaysVisible = true,
+                clockFormat = "HH:mm",
+                weatherUnit = "fahrenheit",
+                showTimer = true,
+                showDate = true,
+                dateFormat = "d MMMM yyyy",
+                locale = "en-US"
+            },
+            imageQuality = "original",
+            dateFilter = (object?)null,
+            weather = new
+            {
+                enabled = true,
+                latitude = 40.7128,
+                longitude = -74.0060,
+                pollIntervalMinutes = 20
+            }
+        });
+
+        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+
+        var body = await response.Content.ReadFromJsonAsync<Profile>();
+        Assert.IsNotNull(body);
+        Assert.AreEqual("fahrenheit", body.Display.WeatherUnit);
+    }
+
+    [TestMethod]
     public async Task DeleteProfile_RemovesProfile()
     {
         await _client.PostAsJsonAsync("/api/profiles", NewProfileBody("del-me"));
@@ -316,6 +372,21 @@ public class ProfilesApiTests : IDisposable
             slideshow = new { intervalSeconds = 10, shuffle = true, transitionEffect = "fade", refreshIntervalMinutes = 60 },
             display = new { formatSource = "roku", overlayStyle = "none", backgroundEffect = "blur", overlayFields = Array.Empty<string>(), overlayBehavior = "manual", overlayFadeSeconds = 5, clockAlwaysVisible = false, clockFormat = "HH:mm", weatherUnit = "celsius", showTimer = true, showDate = true, dateFormat = "d MMMM yyyy", locale = "en-US" },
             imageQuality = "ultra"
+        };
+        Assert.AreEqual(HttpStatusCode.BadRequest, (await _client.PostAsJsonAsync("/api/profiles", body)).StatusCode);
+    }
+
+    [TestMethod]
+    public async Task PostProfile_InvalidWeatherUnit_Returns400()
+    {
+        var body = new
+        {
+            id = "bad-weather-unit", name = "Bad",
+            contentSources = Array.Empty<object>(),
+            mediaTypes = new { photos = true, videos = false, videoAudio = false, livePhotos = false },
+            slideshow = new { intervalSeconds = 10, shuffle = true, transitionEffect = "fade", refreshIntervalMinutes = 60 },
+            display = new { formatSource = "roku", overlayStyle = "none", backgroundEffect = "blur", overlayFields = Array.Empty<string>(), overlayBehavior = "manual", overlayFadeSeconds = 5, clockAlwaysVisible = false, clockFormat = "HH:mm", weatherUnit = "kelvin", showTimer = true, showDate = true, dateFormat = "d MMMM yyyy", locale = "en-US" },
+            imageQuality = "preview"
         };
         Assert.AreEqual(HttpStatusCode.BadRequest, (await _client.PostAsJsonAsync("/api/profiles", body)).StatusCode);
     }

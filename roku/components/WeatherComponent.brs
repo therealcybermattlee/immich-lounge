@@ -12,8 +12,7 @@ sub OnDataChanged()
 
     temp = m.top.temperature
     unit = m.top.unit
-    suffix = "°C"
-    if unit = "fahrenheit" then suffix = "°F"
+    suffix = WeatherTemperatureSuffix(unit)
     m.tempShadowLabel.text = Str(Int(temp)).Trim() + suffix
     m.tempLabel.text = Str(Int(temp)).Trim() + suffix
 end sub

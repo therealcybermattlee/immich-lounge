@@ -64,6 +64,8 @@ A profile decides what to show and how to show it. You can create as many as you
 ![Immich Lounge slideshow with overlay, clock, and weather](./assets/screenshots/slideshow.png){ .doc-screenshot }
 <p class="doc-caption">Example slideshow with a left-side overlay, persistent clock, and weather.</p>
 
+When weather is enabled for a profile, you can choose whether the Roku shows temperatures in Celsius or Fahrenheit.
+
 ## Profile planning
 
 The channel and screensaver share the same companion URL, but they can use different profiles.

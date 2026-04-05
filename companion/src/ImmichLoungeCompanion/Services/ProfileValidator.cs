@@ -26,6 +26,11 @@ public class ProfileValidator : IProfileValidator
             return "Invalid backgroundEffect. Must be none, blur, or ambilight.";
         }
 
+        if (!IsWeatherUnitValid(profile.Display.WeatherUnit))
+        {
+            return "Invalid weatherUnit. Must be celsius or fahrenheit.";
+        }
+
         if (!IsSlideshowValid(profile.Slideshow))
         {
             return "intervalSeconds must be 3–3600; refreshIntervalMinutes must be 5–1440.";
@@ -49,6 +54,7 @@ public class ProfileValidator : IProfileValidator
         e is "fade" or "none" or "slide" or "zoom" or "random";
     private static bool IsPhotoMotionValid(string e) => e is "none" or "kenBurns";
     private static bool IsBackgroundEffectValid(string e) => e is "none" or "blur" or "ambilight";
+    private static bool IsWeatherUnitValid(string unit) => unit is "celsius" or "fahrenheit";
     private static bool IsImageQualityValid(string q) => q is "preview" or "original";
     private static bool IsQualityValid(QualitySettings quality) =>
         quality.MinFileSizeKb is null or >= 0;

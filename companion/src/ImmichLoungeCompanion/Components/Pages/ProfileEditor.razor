@@ -221,6 +221,13 @@ else
                     <label>Latitude: <input type="number" step="0.0001" value="@_profile.Weather.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture)" @oninput="OnWeatherLatitudeChanged" /></label>
                     <label>Longitude: <input type="number" step="0.0001" value="@_profile.Weather.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture)" @oninput="OnWeatherLongitudeChanged" /></label>
                     <label>Poll interval (minutes): <input type="number" value="@_profile.Weather.PollIntervalMinutes" @oninput="OnWeatherPollIntervalMinutesChanged" min="5" max="1440" /></label>
+                    <label>
+                        Temperature unit:
+                        <select @bind="_profile.Display.WeatherUnit">
+                            <option value="celsius">Celsius (°C)</option>
+                            <option value="fahrenheit">Fahrenheit (°F)</option>
+                        </select>
+                    </label>
                 </div>
             }
         </section>

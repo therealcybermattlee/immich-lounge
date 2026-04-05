@@ -19,5 +19,17 @@ namespace tests
       m.assertEqual(WmoToIconName(4), "overcast")
     end function
 
+    @describe("WeatherTemperatureSuffix")
+
+    @it("Celsius uses degree C")
+    function test_temperatureSuffixCelsius()
+      m.assertEqual(WeatherTemperatureSuffix("celsius"), "°C")
+    end function
+
+    @it("Fahrenheit uses degree F")
+    function test_temperatureSuffixFahrenheit()
+      m.assertEqual(WeatherTemperatureSuffix("fahrenheit"), "°F")
+    end function
+
   end class
 end namespace

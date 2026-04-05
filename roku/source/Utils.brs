@@ -102,6 +102,11 @@ function WmoToIconName(code as Integer) as String
     return "overcast"
 end function
 
+function WeatherTemperatureSuffix(unit as Dynamic) as String
+    if unit = "fahrenheit" then return "°F"
+    return "°C"
+end function
+
 function ValueOrDefault(val as Dynamic, default as Dynamic) as Dynamic
     if val = invalid then return default
     return val
