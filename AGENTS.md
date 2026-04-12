@@ -131,7 +131,7 @@ npm run telnet
 
 **Startup/fallback flow:** The app reads `companionUrl` plus the selected profile for the current mode → fetches the enriched profile from the companion → fetches the playlist → starts the slideshow. If the companion is offline it falls back to the cached profile for that mode; if Immich is offline it falls back to the cached playlist for that mode. >20 consecutive asset load failures pause the slideshow with a 60-second countdown.
 
-**Design target — FHD 1080p:** All UI coordinates and sizes are designed for 1920×1080. Roku auto-scales to 720p HD (÷1.5) and 480p SD (÷3), so use a **3-pixel grid**: every x/y position and width/height must be divisible by 3. This ensures pixel-perfect integer results at all three resolutions. Example: use 96px safe-zone margins (96/3=32 at SD), not 100px (100/3=33.3 fractional).
+**Design target — FHD 1080p:** All UI coordinates and sizes are designed for 1920×1080. Keep Roku manifests at `ui_resolutions=fhd` unless adding separate HD layouts; `ui_resolutions=hd,fhd` makes 720p run the 1920×1080 layout too large/off-center. Roku auto-scales to 720p HD (÷1.5) and 480p SD (÷3), so use a **3-pixel grid**: every x/y position and width/height must be divisible by 3. This ensures pixel-perfect integer results at all three resolutions. Example: use 96px safe-zone margins (96/3=32 at SD), not 100px (100/3=33.3 fractional).
 
 ---
 
