@@ -24,10 +24,15 @@
     "telnet": "dotenv -- node -e \"require('child_process').spawnSync('telnet',[process.env.ROKU_HOST,'8085'],{stdio:'inherit'})\""
   },
   "devDependencies": {
-    "@rokucommunity/bslint": "^0.8.39",
+    "@rokucommunity/bslint": "^0.8.41",
     "brighterscript": "^0.67.8",
     "dotenv-cli": "^11.0.0",
-    "roku-deploy": "^3.12.0",
+    "roku-deploy": "^3.16.4",
     "rooibos-roku": "^5.15.7"
+  },
+  "overrides": {
+    "lodash": "4.18.1",
+    "picomatch": "2.3.2",
+    "brace-expansion": "1.1.13"
   }
 }
