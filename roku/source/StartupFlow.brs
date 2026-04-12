@@ -92,6 +92,7 @@ end function
 function FetchStartupPlaylist(companionUrl as String, profileId as String, isScreensaver as Boolean, port as Object, logScope as String, loadingScene = invalid as Dynamic) as Object
     resumeState = LoadResumeState(isScreensaver, profileId)
     resumeOffset = ResolveResumePlaylistOffset(resumeState)
+    resumePlaylistVersion = ResolveResumePlaylistVersion(resumeState)
     cachedPlaylist = LoadCachedPlaylistForMode(isScreensaver)
 
     LogDebug(logScope, "fetching playlist offset=" + resumeOffset.ToStr() + " cachedCount=" + cachedPlaylist.Count().ToStr())
@@ -101,6 +102,7 @@ function FetchStartupPlaylist(companionUrl as String, profileId as String, isScr
     playlistTask.profileId = profileId
     playlistTask.isScreensaver = isScreensaver
     playlistTask.playlistOffset = resumeOffset
+    playlistTask.playlistVersion = resumePlaylistVersion
     playlistTask.playlistCount = StartupPlaylistWindowSize()
     if cachedPlaylist.Count() > 0 then
         playlistTask.maxWaitSec = 3
@@ -142,13 +144,18 @@ function FetchStartupPlaylist(companionUrl as String, profileId as String, isScr
 
             if result.ok = true then
                 playlist = result.assets
+                result.playlistVersion = NormalizePlaylistVersion(result.playlistVersion)
                 LogDebug(logScope, "playlist count=" + playlist.Count().ToStr())
                 RegistryWrite(CachedPlaylistRegistryKey(isScreensaver), FormatJSON(TruncatePlaylistForRegistry(playlist)))
+                startPlaylistIndex = ResolveResumePlaylistIndex(playlist, resumeState)
+                if result.playlistVersion <> "" and resumePlaylistVersion <> "" and result.playlistVersion <> resumePlaylistVersion then
+                    startPlaylistIndex = ResolvePlaylistIndexAfterRefresh(playlist, ValueOrDefault(resumeState.assetId, ""), 0)
+                end if
                 return {
                     status: "live"
                     playlist: playlist
                     launchPlaylistResult: result
-                    startPlaylistIndex: ResolveResumePlaylistIndex(playlist, resumeState)
+                    startPlaylistIndex: startPlaylistIndex
                 }
             end if
 

@@ -27,6 +27,11 @@ public class PlaylistController(
     PlaylistCacheWorker worker,
     IProfileRepository profiles) : ControllerBase
 {
+    private static string EffectivePlaylistVersion(PlaylistCacheEntry entry)
+        => string.IsNullOrWhiteSpace(entry.PlaylistVersion)
+            ? $"legacy-{entry.GeneratedAt.ToUnixTimeMilliseconds()}"
+            : entry.PlaylistVersion;
+
     [HttpDelete]
     public IActionResult Invalidate(string id)
     {
@@ -35,7 +40,7 @@ public class PlaylistController(
     }
 
     [HttpGet]
-    public async Task<IActionResult> Get(string id, [FromQuery] int count = 500, [FromQuery] int offset = 0)
+    public async Task<IActionResult> Get(string id, [FromQuery] int count = 500, [FromQuery] int offset = 0, [FromQuery] string? playlistVersion = null)
     {
         count = Math.Clamp(count, 1, 1000);
         var profile = await profiles.GetAsync(id);
@@ -47,6 +52,7 @@ public class PlaylistController(
         var cached = cache.Get(id);
         if (cached != null)
         {
+            var effectivePlaylistVersion = EffectivePlaylistVersion(cached);
             var totalCount = cached.Assets.Count;
             if (totalCount == 0)
             {
@@ -54,12 +60,19 @@ public class PlaylistController(
                 {
                     Assets = [],
                     GeneratedAt = cached.GeneratedAt,
+                    PlaylistVersion = effectivePlaylistVersion,
                     Cached = true,
                     Building = false,
                     Offset = 0,
                     NextOffset = 0,
                     TotalCount = 0
                 });
+            }
+
+            if (!string.IsNullOrWhiteSpace(playlistVersion) &&
+                !string.Equals(playlistVersion, effectivePlaylistVersion, StringComparison.Ordinal))
+            {
+                offset = 0;
             }
 
             offset = ((offset % totalCount) + totalCount) % totalCount;
@@ -73,6 +86,7 @@ public class PlaylistController(
             {
                 Assets = assets,
                 GeneratedAt = cached.GeneratedAt,
+                PlaylistVersion = effectivePlaylistVersion,
                 Cached = true,
                 Building = false,
                 Offset = offset,
@@ -91,6 +105,7 @@ public class PlaylistController(
         {
             Assets = [],
             GeneratedAt = null,
+            PlaylistVersion = null,
             Cached = false,
             Building = true,
             Offset = 0,

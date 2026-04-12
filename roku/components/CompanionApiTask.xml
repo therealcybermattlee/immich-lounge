@@ -7,6 +7,7 @@
     <field id="profileId"      type="string"     value="" />
     <field id="isScreensaver"  type="boolean"    value="false" />
     <field id="playlistOffset" type="integer"    value="0" />
+    <field id="playlistVersion" type="string"    value="" />
     <field id="playlistCount"  type="integer"    value="50" />
     <field id="maxWaitSec"     type="integer"    value="0" />
     <!-- Outputs -->

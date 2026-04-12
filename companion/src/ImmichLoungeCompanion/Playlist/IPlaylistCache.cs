@@ -17,5 +17,6 @@ public interface IPlaylistCache
 
 public record PlaylistCacheEntry(
     List<PlaylistEntry> Assets,
-    DateTimeOffset GeneratedAt
+    DateTimeOffset GeneratedAt,
+    string? PlaylistVersion = null
 );

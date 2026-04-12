@@ -147,6 +147,16 @@ function ResolveResumePlaylistOffset(resumeState as Dynamic) as Integer
     return resumeState.playlistOffset
 end function
 
+function NormalizePlaylistVersion(version as Dynamic) as String
+    if version = invalid then return ""
+    return version
+end function
+
+function ResolveResumePlaylistVersion(resumeState as Dynamic) as String
+    if resumeState = invalid then return ""
+    return NormalizePlaylistVersion(resumeState.playlistVersion)
+end function
+
 function ResolveResumePlaylistIndex(playlist as Object, resumeState as Dynamic) as Integer
     if playlist = invalid or playlist.Count() = 0 then return 0
     if resumeState = invalid then return 0
@@ -158,6 +168,21 @@ function ResolveResumePlaylistIndex(playlist as Object, resumeState as Dynamic) 
 
     if resumeState.playlistIndex <> invalid and resumeState.playlistIndex >= 0 and resumeState.playlistIndex < playlist.Count() then
         return resumeState.playlistIndex
+    end if
+
+    return 0
+end function
+
+function ResolvePlaylistIndexAfterRefresh(playlist as Object, currentAssetId as Dynamic, fallbackIndex as Integer) as Integer
+    if playlist = invalid or playlist.Count() = 0 then return 0
+
+    if currentAssetId <> invalid and currentAssetId <> "" then
+        idx = FindPlaylistIndexByAssetId(playlist, currentAssetId)
+        if idx >= 0 then return idx
+    end if
+
+    if fallbackIndex >= 0 and fallbackIndex < playlist.Count() then
+        return fallbackIndex
     end if
 
     return 0
@@ -178,12 +203,14 @@ function BuildLaunchPlaylistResultFromResume(playlist as Object, resumeState as 
         offset: 0
         nextOffset: 0
         totalCount: playlist.Count()
+        playlistVersion: ""
     }
 
     if resumeState = invalid then return result
     if resumeState.playlistOffset <> invalid and resumeState.playlistOffset >= 0 then result.offset = resumeState.playlistOffset
     if resumeState.nextPlaylistOffset <> invalid and resumeState.nextPlaylistOffset >= 0 then result.nextOffset = resumeState.nextPlaylistOffset
     if resumeState.totalPlaylistCount <> invalid and resumeState.totalPlaylistCount > 0 then result.totalCount = resumeState.totalPlaylistCount
+    result.playlistVersion = ResolveResumePlaylistVersion(resumeState)
 
     return result
 end function
@@ -191,13 +218,14 @@ end function
 function ApplyPendingBatchSwapState(ctx as Object, isScreensaver as Boolean) as Boolean
     if not ctx.waitingForNextBatchSwap then return false
     if ctx.pendingBatchAssets = invalid then return false
-    if ctx.playlistIndex <> 0 then return false
 
     ctx.playlist = ctx.pendingBatchAssets
     ctx.playlistOffset = ctx.pendingBatchOffset
     ctx.nextPlaylistOffset = ctx.pendingNextPlaylistOffset
+    ctx.playlistVersion = NormalizePlaylistVersion(ctx.pendingBatchPlaylistVersion)
     ctx.pendingBatchAssets = invalid
     ctx.pendingBatchOffset = 0
+    ctx.pendingBatchPlaylistVersion = ""
     ctx.pendingNextPlaylistOffset = 0
     ctx.waitingForNextBatchSwap = false
     ctx.playlistIndex = 0
@@ -205,7 +233,7 @@ function ApplyPendingBatchSwapState(ctx as Object, isScreensaver as Boolean) as 
     return true
 end function
 
-sub PersistResumeStateForMode(entry as Object, top as Object, playlistIndex as Integer, playlistOffset as Integer, nextPlaylistOffset as Integer, totalPlaylistCount as Integer, isScreensaver as Boolean)
+sub PersistResumeStateForMode(entry as Object, top as Object, playlistIndex as Integer, playlistOffset as Integer, nextPlaylistOffset as Integer, totalPlaylistCount as Integer, playlistVersion as String, isScreensaver as Boolean)
     if entry = invalid then return
     state = {
         profileId: top.profileId
@@ -214,6 +242,7 @@ sub PersistResumeStateForMode(entry as Object, top as Object, playlistIndex as I
         playlistOffset: playlistOffset
         nextPlaylistOffset: nextPlaylistOffset
         totalPlaylistCount: totalPlaylistCount
+        playlistVersion: NormalizePlaylistVersion(playlistVersion)
     }
     RegistryWriteJson(ResumeStateRegistryKey(isScreensaver), state)
 end sub

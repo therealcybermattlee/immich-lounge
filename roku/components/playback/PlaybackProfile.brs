@@ -39,8 +39,14 @@ sub ApplyProfileForScene(ctx as Object)
         ctx.refreshIntervalMinutes = PlaybackRefreshIntervalDefaultMinutes()
     end if
 
-    ctx.refreshTimer.duration = ctx.refreshIntervalMinutes * PlaybackClockDatePollSeconds()
-    ctx.refreshTimer.control = "start"
+    if not ctx.skipFullRefreshTimerRestart then
+        ctx.refreshTimer.duration = ctx.refreshIntervalMinutes * PlaybackClockDatePollSeconds()
+        ctx.refreshTimer.control = "start"
+    end if
+    if ctx.profileConfigTimer <> invalid then
+        ctx.profileConfigTimer.duration = PlaybackProfileConfigRefreshSeconds()
+        ctx.profileConfigTimer.control = "start"
+    end if
 
     ApplyWeatherAndClockProfileForScene(ctx, display, ctx.profile.weather)
 

@@ -80,6 +80,8 @@ Press `*` during playback in the channel to open the settings dialog.
 ![Roku settings dialog](./assets/screenshots/config-dialog.png){ .doc-screenshot }
 <p class="doc-caption">The Roku settings dialog is available from the <code>*</code> button during channel playback.</p>
 
+The Roku also checks the active profile configuration about every 5 minutes and applies display, clock, and weather changes without replacing the current playlist. Use **Refresh Now** when you intentionally want to re-fetch both the profile and playlist immediately.
+
 ## Typical Setup Patterns
 
 - Use one profile for the channel and another for the screensaver if you want different rooms or moods.

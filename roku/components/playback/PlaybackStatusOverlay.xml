@@ -30,6 +30,33 @@
              width="1920" horizAlign="center" vertAlign="center" height="1080" />
     </Group>
 
+    <Group id="emptyPlaylistGroup" visible="false" translation="[0,0]">
+      <Rectangle color="#0D1120FF" width="1920" height="1080" />
+      <Poster id="emptyPlaylistLogo" width="360" height="270" loadDisplayMode="scaleToFit"
+              uri="pkg:/images/roku-fhd-540x405.png"
+              translation="[780,228]" />
+      <Label id="emptyPlaylistTitle" text="No photos found for this profile"
+             color="#FFFFFFFF" font="font:LargeBoldSystemFont"
+             width="1200" height="60" horizAlign="center" vertAlign="center"
+             translation="[360,510]" />
+      <Label id="emptyPlaylistProfileName"
+             color="#9CA3AFFF" font="font:MediumSystemFont"
+             width="1200" height="42" horizAlign="center" vertAlign="center"
+             translation="[360,582]" />
+      <Label id="emptyPlaylistBody"
+             color="#D8DEE9FF" font="font:MediumSystemFont"
+             width="1200" height="90" horizAlign="center" vertAlign="center"
+             translation="[360,636]" wrap="true" />
+      <Label id="emptyPlaylistHint"
+             color="#FFFFFFFF" font="font:MediumBoldSystemFont"
+             width="1200" height="54" horizAlign="center" vertAlign="center"
+             translation="[360,738]" wrap="true" />
+      <Label id="emptyPlaylistCompanionUrl"
+             color="#6B7280FF" font="font:SmallSystemFont"
+             width="1200" height="42" horizAlign="center" vertAlign="center"
+             translation="[360,804]" />
+    </Group>
+
     <Group id="pauseIndicator" visible="false" translation="[1740, 942]" opacity="0.72">
       <Rectangle color="#00000066" width="84" height="84" />
       <Rectangle color="#FFFFFFCC" width="12" height="36" translation="[24, 24]" />

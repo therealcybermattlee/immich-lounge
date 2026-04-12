@@ -111,8 +111,16 @@ sub OnRefreshTimer()
     OnRefreshTimerForScene(m)
 end sub
 
+sub OnProfileConfigTimer()
+    OnProfileConfigTimerForScene(m, true)
+end sub
+
 sub OnTriggerRefresh()
     OnTriggerRefreshForScene(m)
+end sub
+
+sub OnProfileConfigResult()
+    OnProfileConfigResultForScene(m, true)
 end sub
 
 sub OnRefreshProfileResult()

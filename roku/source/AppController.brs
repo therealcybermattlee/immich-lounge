@@ -201,8 +201,20 @@ function StartSlideshowFlow(companionUrl as String, profileId as String, scene a
 
             if playlist = invalid or playlist.Count() = 0 then
                 LogDebug("AppController", "playlist is empty")
-                ShowFullScreenError(scene, "No photos found." + Chr(10) + "Add content sources to your profile on the companion." + Chr(10) + Chr(10) + "Press Back to exit and retry after adding content.")
-                return "exit"
+                if isScreensaver then
+                    emptyMessage = "No photos found for this profile." + Chr(10) + "Choose a profile with photos, or update the profile filters in the companion." + Chr(10) + Chr(10) + "Open Roku Screensaver Settings to change profile."
+                    ShowFullScreenError(scene, emptyMessage)
+                    return "exit"
+                end if
+                profileName = ""
+                if profile <> invalid and profile.name <> invalid then profileName = profile.name
+                emptyMessage = {
+                    body: "Choose a profile with photos, or update the profile filters in the companion."
+                    hint: "Press * to change profile. Press Back to exit."
+                    companionUrl: companionUrl
+                    profileName: profileName
+                }
+                return LaunchSlideshow(profile, [], companionUrl, profileId, isScreensaver, port, launchPlaylistResult, 0, useLocalDateFormatting, false, emptyMessage)
             end if
 
             LogDebug("AppController", "launching slideshow startIndex=" + startPlaylistIndex.ToStr() + " playlistCount=" + playlist.Count().ToStr())
@@ -211,16 +223,61 @@ function StartSlideshowFlow(companionUrl as String, profileId as String, scene a
     end while
 end function
 
-function LaunchSlideshow(profile as Object, playlist as Object, companionUrl as String, profileId as String, isScreensaver as Boolean, port as Object, playlistResult as Object, startPlaylistIndex as Integer, useLocalDateFormatting = false as Boolean, openSettingsOnStart = false as Boolean) as String
+function LaunchSlideshow(profile as Object, playlist as Object, companionUrl as String, profileId as String, isScreensaver as Boolean, port as Object, playlistResult as Object, startPlaylistIndex as Integer, useLocalDateFormatting = false as Boolean, openSettingsOnStart = false as Boolean, startupMessage = invalid as Dynamic) as String
     LogDebug("AppController", "creating SlideshowScene")
     slideshowScene = m.screen.CreateScene("SlideshowScene")
     ConfigureSlideshowSceneForLaunch(slideshowScene, profile, playlist, companionUrl, profileId, isScreensaver, playlistResult, startPlaylistIndex, useLocalDateFormatting, openSettingsOnStart)
     m.screen.show()
+    if startupMessage <> invalid then
+        ShowEmptyPlaylistOverlay(slideshowScene, startupMessage)
+        statusLabel = slideshowScene.findNode("statusLabel")
+        if statusLabel <> invalid then statusLabel.visible = false
+        spinner = slideshowScene.findNode("spinner")
+        if spinner <> invalid then spinner.visible = false
+        loadingIndicator = slideshowScene.findNode("loadingIndicator")
+        if loadingIndicator <> invalid then loadingIndicator.visible = false
+    end if
     if not isScreensaver then
         slideshowScene.setFocus(true)
     end if
     return WaitForSlideshowSceneAction(slideshowScene, port, true)
 end function
+
+sub ShowEmptyPlaylistOverlay(scene as Object, message as Dynamic)
+    group = scene.findNode("emptyPlaylistGroup")
+    if group = invalid then
+        ShowFullScreenError(scene, "No photos found for this profile.")
+        return
+    end if
+
+    body = ""
+    hint = ""
+    companionUrl = ""
+    profileName = ""
+    if type(message) = "roAssociativeArray" then
+        if message.body <> invalid then body = message.body
+        if message.hint <> invalid then hint = message.hint
+        if message.companionUrl <> invalid then companionUrl = message.companionUrl
+        if message.profileName <> invalid then profileName = message.profileName
+    else
+        body = message.ToStr()
+    end if
+
+    bodyLabel = scene.findNode("emptyPlaylistBody")
+    if bodyLabel <> invalid then bodyLabel.text = body
+    hintLabel = scene.findNode("emptyPlaylistHint")
+    if hintLabel <> invalid then hintLabel.text = hint
+    urlLabel = scene.findNode("emptyPlaylistCompanionUrl")
+    if urlLabel <> invalid then urlLabel.text = companionUrl
+    profileNameLabel = scene.findNode("emptyPlaylistProfileName")
+    if profileNameLabel <> invalid then profileNameLabel.text = profileName
+
+    fallbackPanel = scene.findNode("fallbackPanel")
+    if fallbackPanel <> invalid then fallbackPanel.opacity = 0.0
+    errorGroup = scene.findNode("errorGroup")
+    if errorGroup <> invalid then errorGroup.visible = false
+    group.visible = true
+end sub
 
 sub ShowSetupPrompt(scene as Object)
     ShowSetupPromptWithMessage(scene, "Open the Immich Lounge channel to complete setup.")

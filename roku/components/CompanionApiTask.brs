@@ -61,9 +61,10 @@ sub FetchPlaylist()
 
     offset = m.top.playlistOffset
     count = m.top.playlistCount
+    playlistVersion = NormalizePlaylistVersion(m.top.playlistVersion)
     if count <= 0 then count = 50
     if offset < 0 then offset = 0
-    url = BuildPlaylistUrl(m.top.baseUrl, m.top.profileId, count, offset)
+    url = BuildPlaylistUrlWithVersion(m.top.baseUrl, m.top.profileId, count, offset, playlistVersion)
     deadline = UpTime(0) + maxWaitSec
 
     result = { ok: false, assets: [], building: false }
@@ -87,6 +88,7 @@ sub FetchPlaylist()
                 result.offset = data.offset
                 result.nextOffset = data.nextOffset
                 result.totalCount = data.totalCount
+                result.playlistVersion = data.playlistVersion
                 exit while
             end if
         else
@@ -114,7 +116,15 @@ sub FetchClock()
 end sub
 
 function BuildPlaylistUrl(baseUrl as String, profileId as String, count as Integer, offset = 0 as Integer) as String
-    return baseUrl + "/api/profiles/" + profileId + "/playlist?count=" + Str(count).Trim() + "&offset=" + Str(offset).Trim()
+    return BuildPlaylistUrlWithVersion(baseUrl, profileId, count, offset, "")
+end function
+
+function BuildPlaylistUrlWithVersion(baseUrl as String, profileId as String, count as Integer, offset as Integer, playlistVersion as String) as String
+    url = baseUrl + "/api/profiles/" + profileId + "/playlist?count=" + Str(count).Trim() + "&offset=" + Str(offset).Trim()
+    if NormalizePlaylistVersion(playlistVersion) <> "" then
+        url = url + "&playlistVersion=" + playlistVersion
+    end if
+    return url
 end function
 
 ' TruncatePlaylistForRegistry and PrepareEntryForRegistry are defined in Utils.brs

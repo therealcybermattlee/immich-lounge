@@ -31,5 +31,11 @@ namespace tests
       m.assertEqual(url, "http://192.168.1.10:4383/api/profiles/living-room/playlist?count=500&offset=100")
     end function
 
+    @it("Adds playlistVersion when present")
+    function test_urlWithPlaylistVersion()
+      url = BuildPlaylistUrlWithVersion("http://192.168.1.10:4383", "living-room", 500, 100, "v1")
+      m.assertEqual(url, "http://192.168.1.10:4383/api/profiles/living-room/playlist?count=500&offset=100&playlistVersion=v1")
+    end function
+
   end class
 end namespace

@@ -24,6 +24,7 @@ sub FetchNextPlaylistBatchForScene(ctx as Object, isScreensaver as Boolean)
     task.profileId = ctx.top.profileId
     task.isScreensaver = isScreensaver
     task.playlistOffset = ctx.nextPlaylistOffset
+    task.playlistVersion = ctx.playlistVersion
     task.playlistCount = PlaybackRegistryPlaylistWindowSize()
     task.observeField("playlistResult", "OnNextBatchResult")
     ctx.nextBatchTask = task
@@ -46,9 +47,27 @@ sub OnNextBatchResultForScene(ctx as Object)
     end if
 
     if result.ok = true and result.assets.Count() > 0 then
+        resultPlaylistVersion = NormalizePlaylistVersion(result.playlistVersion)
+        currentPlaylistVersion = NormalizePlaylistVersion(ctx.playlistVersion)
+        if currentPlaylistVersion <> "" and resultPlaylistVersion <> "" and resultPlaylistVersion <> currentPlaylistVersion then
+            LogDebug(PlaybackLogScope(ctx), "next batch version changed from " + currentPlaylistVersion + " to " + resultPlaylistVersion + "; triggering full refresh")
+            ctx.waitingForNextBatchSwap = false
+            ctx.pendingBatchAssets = invalid
+            ctx.pendingBatchOffset = 0
+            ctx.pendingBatchPlaylistVersion = ""
+            ctx.pendingNextPlaylistOffset = 0
+            TriggerPlaylistRefreshForScene(ctx, ctx.top.isScreensaver)
+            return
+        end if
+
         LogDebug(PlaybackLogScope(ctx), "next batch ready offset=" + result.offset.ToStr() + " count=" + result.assets.Count().ToStr() + " nextOffset=" + result.nextOffset.ToStr())
         ctx.pendingBatchAssets = result.assets
         ctx.pendingBatchOffset = result.offset
+        if resultPlaylistVersion <> "" then
+            ctx.pendingBatchPlaylistVersion = resultPlaylistVersion
+        else
+            ctx.pendingBatchPlaylistVersion = currentPlaylistVersion
+        end if
         ctx.pendingNextPlaylistOffset = result.nextOffset
         ctx.totalPlaylistCount = result.totalCount
     else

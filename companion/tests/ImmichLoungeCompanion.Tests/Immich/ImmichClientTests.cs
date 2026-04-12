@@ -12,7 +12,7 @@ namespace ImmichLoungeCompanion.Tests.Immich;
 public class ImmichClientTests
 {
     [TestMethod]
-    public async Task GetAlbumsAsync_FetchesOwnAndSharedAlbums_AndDeduplicatesById()
+    public async Task GetAlbumsAsync_ReturnsOwnAlbumsOnlyUntilImmichSupportsSharedAlbumSearch()
     {
         var requests = new List<string>();
         var handler = new StubHttpMessageHandler(request =>
@@ -24,13 +24,7 @@ public class ImmichClientTests
                 "/api/albums" => JsonResponse("""
                     [
                       { "id": "own-1", "albumName": "Own Album", "assetCount": 3 },
-                      { "id": "shared-dup", "albumName": "Duplicate From Own", "assetCount": 5 }
-                    ]
-                    """),
-                "/api/albums?shared=true" => JsonResponse("""
-                    [
-                      { "id": "shared-dup", "albumName": "Duplicate From Shared", "assetCount": 5 },
-                      { "id": "shared-1", "albumName": "Shared Album", "assetCount": 7 }
+                      { "id": "own-2", "albumName": "Second Own Album", "assetCount": 5 }
                     ]
                     """),
                 _ => new HttpResponseMessage(HttpStatusCode.NotFound)
@@ -50,20 +44,17 @@ public class ImmichClientTests
         CollectionAssert.AreEqual(
             new[]
             {
-                "http://immich.example/api/albums",
-                "http://immich.example/api/albums?shared=true"
+                "http://immich.example/api/albums"
             },
             requests);
 
-        Assert.AreEqual(3, albums.Count);
+        Assert.AreEqual(2, albums.Count);
         Assert.AreEqual("own-1", albums[0].Id);
-        Assert.AreEqual("shared-dup", albums[1].Id);
-        Assert.AreEqual("Duplicate From Own", albums[1].AlbumName);
-        Assert.AreEqual("shared-1", albums[2].Id);
+        Assert.AreEqual("own-2", albums[1].Id);
     }
 
     [TestMethod]
-    public async Task GetAlbumsAsync_WhenSharedQueriesAreRejected_ReturnsOwnAlbumsOnly()
+    public async Task GetAlbumsAsync_DoesNotCallSharedAlbumsEndpoint()
     {
         var handler = new StubHttpMessageHandler(request => request.RequestUri!.PathAndQuery switch
         {
@@ -72,7 +63,7 @@ public class ImmichClientTests
                   { "id": "own-1", "albumName": "Own Album", "assetCount": 3 }
                 ]
                 """),
-            "/api/albums?shared=true" => new HttpResponseMessage(HttpStatusCode.BadRequest),
+            "/api/albums?shared=true" => throw new InvalidOperationException("Shared albums should not be queried while Immich search cannot use them."),
             _ => new HttpResponseMessage(HttpStatusCode.NotFound)
         });
 

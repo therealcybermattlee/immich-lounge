@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -84,14 +83,9 @@ public class ImmichClient(IHttpClientFactory httpClientFactory, ILogger<ImmichCl
     public async Task<List<ImmichAlbum>> GetAlbumsAsync(ImmichSettings settings)
     {
         var (client, baseUrl) = BuildClient(settings);
-        var ownAlbums = await GetAlbumsPageAsync(client, baseUrl, settings.ApiKey, "api/albums", "GET /api/albums");
-        var sharedAlbums = await GetSharedAlbumsAsync(client, baseUrl, settings.ApiKey);
-
-        return ownAlbums
-            .Concat(sharedAlbums)
-            .GroupBy(album => album.Id, StringComparer.Ordinal)
-            .Select(group => group.First())
-            .ToList();
+        // Shared album listing works, but Immich asset search does not resolve shared
+        // album ids yet. Keep the shared-album helpers below parked until that is fixed.
+        return await GetAlbumsPageAsync(client, baseUrl, settings.ApiKey, "api/albums", "GET /api/albums");
     }
 
     public async Task<List<ImmichPerson>> GetPeopleAsync(ImmichSettings settings)
@@ -197,6 +191,41 @@ public class ImmichClient(IHttpClientFactory httpClientFactory, ILogger<ImmichCl
             context, (int)response.StatusCode, body);
         response.EnsureSuccessStatusCode();
         return [];
+    }
+
+    private async Task NormalizeAlbumCountsAsync(HttpClient client, string baseUrl, string apiKey, List<ImmichAlbum> albums)
+    {
+        foreach (var album in albums)
+        {
+            if (album.AssetCount > 0)
+            {
+                continue;
+            }
+
+            if (album.Assets.Count > 0)
+            {
+                album.AssetCount = album.Assets.Count;
+                continue;
+            }
+
+            var path = $"api/albums/{Uri.EscapeDataString(album.Id)}?withoutAssets=true";
+            var req = ApiRequest(HttpMethod.Get, baseUrl, path, apiKey);
+            var response = await client.SendAsync(req);
+            if (response.IsSuccessStatusCode)
+            {
+                var detailedAlbum = await response.Content.ReadFromJsonAsync<ImmichAlbum>(JsonOptions);
+                if (detailedAlbum is not null)
+                {
+                    album.AssetCount = detailedAlbum.AssetCount;
+                }
+                continue;
+            }
+
+            var body = await response.Content.ReadAsStringAsync();
+            logger.LogWarning(
+                "Immich album count query rejected [GET /api/albums/{AlbumId}?withoutAssets=true] HTTP {Status}: {Body}",
+                album.Id, (int)response.StatusCode, body);
+        }
     }
 
     private class AssetStatisticsResponse

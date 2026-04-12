@@ -48,6 +48,7 @@ namespace tests
         playlistOffset: 50
         nextPlaylistOffset: 100
         totalPlaylistCount: 320
+        playlistVersion: "v1"
       }
 
       result = BuildLaunchPlaylistResultFromResume(playlist, resumeState)
@@ -55,6 +56,33 @@ namespace tests
       m.assertEqual(result.offset, 50)
       m.assertEqual(result.nextOffset, 100)
       m.assertEqual(result.totalCount, 320)
+      m.assertEqual(result.playlistVersion, "v1")
+    end function
+
+    @it("Keeps current asset visible after playlist refresh when present")
+    function test_resolvePlaylistIndexAfterRefreshByAssetId()
+      playlist = [
+        { id: "a" }
+        { id: "b" }
+        { id: "c" }
+      ]
+
+      idx = ResolvePlaylistIndexAfterRefresh(playlist, "b", 0)
+
+      m.assertEqual(idx, 1)
+    end function
+
+    @it("Falls back to current index after playlist refresh when asset is missing")
+    function test_resolvePlaylistIndexAfterRefreshFallback()
+      playlist = [
+        { id: "a" }
+        { id: "b" }
+        { id: "c" }
+      ]
+
+      idx = ResolvePlaylistIndexAfterRefresh(playlist, "missing", 2)
+
+      m.assertEqual(idx, 2)
     end function
 
   end class

@@ -48,6 +48,10 @@ function PlaybackRefreshIntervalDefaultMinutes() as Integer
     return 60
 end function
 
+function PlaybackProfileConfigRefreshSeconds() as Integer
+    return 300
+end function
+
 function PlaybackLogScope(ctx as Object) as String
     if ctx = invalid then
         return "SlideshowScene"

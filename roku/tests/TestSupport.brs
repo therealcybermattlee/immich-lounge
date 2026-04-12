@@ -5,6 +5,14 @@ function BuildPlaylistUrl(baseUrl as String, profileId as String, count as Integ
     return baseUrl + "/api/profiles/" + profileId + "/playlist?count=" + Str(count).Trim() + "&offset=" + Str(offset).Trim()
 end function
 
+function BuildPlaylistUrlWithVersion(baseUrl as String, profileId as String, count as Integer, offset as Integer, playlistVersion as String) as String
+    url = BuildPlaylistUrl(baseUrl, profileId, count, offset)
+    if playlistVersion <> invalid and playlistVersion <> "" then
+        url = url + "&playlistVersion=" + playlistVersion
+    end if
+    return url
+end function
+
 function BuildMSearchPacket() as String
     ST = "urn:immich-lounge:service:companion:1"
     crlf = Chr(13) + Chr(10)

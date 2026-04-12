@@ -63,6 +63,12 @@ Yes. They share the same companion connection, but the Roku channel and Roku scr
 
 ---
 
+## Can I use shared Immich albums?
+
+Not yet. Immich Lounge currently lists only albums owned by the configured Immich user because Immich search does not yet reliably return assets from shared albums. Follow upstream progress in the Immich discussion [Shared Albums in Search Results](https://github.com/immich-app/immich/discussions/2995).
+
+---
+
 ## Does the Roku fetch media from the companion?
 
 No. The companion serves configuration and playlists. The Roku fetches media directly from immich using the enriched profile it receives from the companion.

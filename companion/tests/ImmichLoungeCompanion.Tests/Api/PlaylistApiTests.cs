@@ -76,6 +76,7 @@ public class PlaylistApiTests : IDisposable
 
         var body = await response.Content.ReadFromJsonAsync<PlaylistResponse>();
         CollectionAssert.AreEqual(new[] { "a", "b", "c" }, body!.Assets.Select(a => a.Id).ToArray());
+        Assert.IsFalse(string.IsNullOrWhiteSpace(body.PlaylistVersion));
     }
 
     [TestMethod]
@@ -110,6 +111,40 @@ public class PlaylistApiTests : IDisposable
         Assert.AreEqual(2, body.Offset);
         Assert.AreEqual(0, body.NextOffset);
         Assert.AreEqual(4, body.TotalCount);
+        Assert.IsFalse(string.IsNullOrWhiteSpace(body.PlaylistVersion));
+    }
+
+    [TestMethod]
+    public async Task GetPlaylist_WithMismatchedPlaylistVersion_ResetsOffsetToZero()
+    {
+        await _client.PostAsJsonAsync("/api/profiles", new
+        {
+            id = "versioned-playlist",
+            name = "Versioned",
+            contentSources = Array.Empty<object>(),
+            mediaTypes = new { photos = true, videos = false, videoAudio = false, livePhotos = false },
+            slideshow = new { intervalSeconds = 10, shuffle = false, transitionEffect = "fade", refreshIntervalMinutes = 60 },
+            display = new { overlayStyle = "none", overlayFields = Array.Empty<string>(), overlayBehavior = "manual", overlayFadeSeconds = 5, clockAlwaysVisible = false, clockFormat = "HH:mm", weatherUnit = "celsius" },
+            imageQuality = "preview"
+        });
+
+        using var scope = _factory.Services.CreateScope();
+        var cache = scope.ServiceProvider.GetRequiredService<IPlaylistCache>();
+        cache.Set("versioned-playlist", new PlaylistCacheEntry(
+        [
+            new PlaylistEntry("a", "photo", null, null),
+            new PlaylistEntry("b", "photo", null, null),
+            new PlaylistEntry("c", "photo", null, null),
+            new PlaylistEntry("d", "photo", null, null)
+        ], DateTimeOffset.UtcNow, "v-current"));
+
+        var response = await _client.GetAsync("/api/profiles/versioned-playlist/playlist?count=2&offset=2&playlistVersion=v-old");
+        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+
+        var body = await response.Content.ReadFromJsonAsync<PlaylistResponse>();
+        CollectionAssert.AreEqual(new[] { "a", "b" }, body!.Assets.Select(a => a.Id).ToArray());
+        Assert.AreEqual(0, body.Offset);
+        Assert.AreEqual("v-current", body.PlaylistVersion);
     }
 
     [TestMethod]

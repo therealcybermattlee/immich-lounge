@@ -10,6 +10,7 @@ sub ConfigureSlideshowSceneForLaunch(scene as Object, profile as Object, playlis
         scene.playlistOffset = playlistResult.offset
         scene.nextPlaylistOffset = playlistResult.nextOffset
         scene.totalPlaylistCount = playlistResult.totalCount
+        scene.playlistVersion = NormalizePlaylistVersion(playlistResult.playlistVersion)
     end if
     scene.isScreensaver = isScreensaver
     scene.profile = profile

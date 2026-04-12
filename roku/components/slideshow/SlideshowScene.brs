@@ -138,8 +138,16 @@ sub OnRefreshTimer()
     OnRefreshTimerForScene(m)
 end sub
 
+sub OnProfileConfigTimer()
+    OnProfileConfigTimerForScene(m, m.top.isScreensaver)
+end sub
+
 sub OnTriggerRefresh()
     OnTriggerRefreshForScene(m)
+end sub
+
+sub OnProfileConfigResult()
+    OnProfileConfigResultForScene(m, m.top.isScreensaver)
 end sub
 
 sub OnRefreshProfileResult()

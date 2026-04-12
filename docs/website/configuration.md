@@ -63,6 +63,8 @@ A profile decides what to show and how to show it. You can create as many as you
 | Playback | Interval, shuffle, transition effect, photo motion, and playlist refresh interval |
 | Display | Overlay style and fields, background effect, date and time formatting, weather, and image quality |
 
+> **Shared albums:** Immich Lounge currently lists only albums owned by the configured Immich user. Shared albums are hidden because Immich search does not yet reliably return assets from shared albums. Track upstream support in the Immich discussion [Shared Albums in Search Results](https://github.com/immich-app/immich/discussions/2995).
+
 ![Immich Lounge slideshow with overlay, clock, and weather](./assets/screenshots/slideshow.png){ .doc-screenshot }
 <p class="doc-caption">Example slideshow with a left-side overlay, persistent clock, and weather.</p>
 

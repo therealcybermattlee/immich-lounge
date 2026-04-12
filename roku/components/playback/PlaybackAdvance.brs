@@ -15,15 +15,27 @@ sub AdvanceToNextForScene(ctx as Object)
         FetchNextPlaylistBatchForScene(ctx, ctx.top.isScreensaver)
     end if
 
-    ctx.playlistIndex = ctx.playlistIndex + 1
-    if ctx.playlistIndex >= ctx.playlist.Count() then
-        ctx.playlistIndex = 0
-        ctx.waitingForNextBatchSwap = true
-        FetchNextPlaylistBatchForScene(ctx, ctx.top.isScreensaver)
-        if ApplyPendingBatchSwapForScene(ctx, ctx.top.isScreensaver) then
-            ShowCurrentSlideForScene(ctx)
-            return
+    if ctx.playlistIndex >= ctx.playlist.Count() - 1 then
+        hasMoreBatches = ctx.totalPlaylistCount > ctx.playlist.Count()
+        if hasMoreBatches then
+            ctx.waitingForNextBatchSwap = true
+            FetchNextPlaylistBatchForScene(ctx, ctx.top.isScreensaver)
+            if ApplyPendingBatchSwapForScene(ctx, ctx.top.isScreensaver) then
+                ShowCurrentSlideForScene(ctx)
+                return
+            end if
+
+            if ctx.nextBatchTask <> invalid and ctx.nextBatchTask.control = "RUN" then
+                ' Avoid replaying the current batch head while the next window is still loading.
+                ctx.slideTimer.duration = 1
+                ctx.slideTimer.control = "start"
+                return
+            end if
         end if
+
+        ctx.playlistIndex = 0
+    else
+        ctx.playlistIndex = ctx.playlistIndex + 1
     end if
 
     ShowCurrentSlideForScene(ctx)

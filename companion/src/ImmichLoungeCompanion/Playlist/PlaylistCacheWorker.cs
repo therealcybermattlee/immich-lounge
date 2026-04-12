@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ImmichLoungeCompanion.Storage;
@@ -37,8 +38,22 @@ public class PlaylistCacheWorker(
                 return;
             }
 
+            var existing = cache.Get(profileId);
             var assets = await builder.BuildAsync(profile, ct);
-            cache.Set(profileId, new(assets, DateTimeOffset.UtcNow));
+            if (profile.Slideshow.Shuffle && existing?.Assets.Count > 0)
+            {
+                assets = PlaylistShuffleOrder.PreserveExistingOrder(existing.Assets, assets);
+            }
+
+            var playlistVersion = existing?.PlaylistVersion;
+            if (string.IsNullOrWhiteSpace(playlistVersion) ||
+                existing == null ||
+                !existing.Assets.SequenceEqual(assets))
+            {
+                playlistVersion = Guid.NewGuid().ToString("N");
+            }
+
+            cache.Set(profileId, new(assets, DateTimeOffset.UtcNow, playlistVersion));
             logger.LogInformation("Playlist cache rebuilt for profile {ProfileId}: {Count} entries", profileId, assets.Count);
         }
         catch (Exception ex)

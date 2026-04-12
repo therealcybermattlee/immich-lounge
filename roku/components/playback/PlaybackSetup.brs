@@ -39,8 +39,10 @@ sub InitPlaybackSceneForScene(ctx as Object)
     ctx.playlistOffset = 0
     ctx.nextPlaylistOffset = 0
     ctx.totalPlaylistCount = 0
+    ctx.playlistVersion = ""
     ctx.pendingBatchAssets = invalid
     ctx.pendingBatchOffset = 0
+    ctx.pendingBatchPlaylistVersion = ""
     ctx.pendingNextPlaylistOffset = 0
     ctx.waitingForNextBatchSwap = false
     ctx.consecutiveFails = 0
@@ -48,6 +50,7 @@ sub InitPlaybackSceneForScene(ctx as Object)
     ctx.overlayVisible = true
     ctx.cachedWeather = invalid
     ctx.profile = invalid
+    ctx.skipFullRefreshTimerRestart = false
     ctx.hasShownFirstFrame = false
     ctx.slideStartTime = 0
     ctx.slideDuration = PlaybackSlideIntervalDefaultSeconds()
@@ -100,6 +103,10 @@ sub InitPlaybackSceneForScene(ctx as Object)
     ctx.refreshTimer = CreateObject("roSGNode", "Timer")
     ctx.refreshTimer.repeat = false
     ctx.refreshTimer.observeField("fire", "OnRefreshTimer")
+
+    ctx.profileConfigTimer = CreateObject("roSGNode", "Timer")
+    ctx.profileConfigTimer.repeat = true
+    ctx.profileConfigTimer.observeField("fire", "OnProfileConfigTimer")
 
     ctx.transitionTimer = CreateObject("roSGNode", "Timer")
     ctx.transitionTimer.repeat = false
@@ -161,8 +168,10 @@ sub ApplyPlaylistFromTopForScene(ctx as Object)
     ctx.playlistOffset = ctx.top.playlistOffset
     ctx.nextPlaylistOffset = ctx.top.nextPlaylistOffset
     ctx.totalPlaylistCount = ctx.top.totalPlaylistCount
+    ctx.playlistVersion = NormalizePlaylistVersion(ctx.top.playlistVersion)
     ctx.pendingBatchAssets = invalid
     ctx.pendingBatchOffset = 0
+    ctx.pendingBatchPlaylistVersion = ""
     ctx.pendingNextPlaylistOffset = 0
     ctx.waitingForNextBatchSwap = false
     PrepareStartupStatusForScene(ctx)
