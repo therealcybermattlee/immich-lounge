@@ -50,6 +50,7 @@
   <script type="text/brightscript" uri="pkg:/components/playback/PlaybackProfile.brs" />
   <script type="text/brightscript" uri="pkg:/components/playback/PlaybackSetup.brs" />
   <script type="text/brightscript" uri="pkg:/components/playback/PlaybackEffects.brs" />
+  <script type="text/brightscript" uri="pkg:/components/playback/PlaybackVideo.brs" />
   <script type="text/brightscript" uri="pkg:/source/PlaylistRegistry.brs" />
   <script type="text/brightscript" uri="pkg:/source/WeatherAndClock.brs" />
   <script type="text/brightscript" uri="pkg:/source/WeatherAndClockController.brs" />

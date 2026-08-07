@@ -5,8 +5,10 @@ sub ShowCurrentSlideForScene(ctx as Object)
     if ctx.profile = invalid then return
     if ctx.playlistIndex >= ctx.playlist.Count() then ctx.playlistIndex = 0
 
+    StopVideoForScene(ctx)
+
     entry = ctx.playlist[ctx.playlistIndex]
-    mediaUrl = BuildMediaUrl(entry, ctx.profile)
+    mediaUrl = BuildStillMediaUrl(entry, ctx.profile)
     bgMediaUrl = BuildBackgroundMediaUrl(entry, ctx.profile)
     ctx.pendingEntry = entry
     ctx.loadingFromSlot = ctx.ringCurrent

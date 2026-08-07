@@ -85,6 +85,10 @@ sub InitPlaybackSceneForScene(ctx as Object)
     ctx.loadingMainFallbackTried = false
     ctx.isTransitioning = false
 
+    ctx.videoPlayer = ctx.top.findNode("videoPlayer")
+    ctx.videoActive = false
+    ctx.videoEntryId = ""
+
     ctx.slideTimer = CreateObject("roSGNode", "Timer")
     ctx.slideTimer.repeat = false
     ctx.slideTimer.observeField("fire", "OnSlideTimer")
@@ -132,6 +136,11 @@ sub InitPlaybackSceneForScene(ctx as Object)
     ctx.layoutRetryTimer.duration = PlaybackLayoutRetryDelaySeconds()
     ctx.layoutRetryTimer.repeat = false
     ctx.layoutRetryTimer.observeField("fire", "OnLayoutRetryTimer")
+
+    ctx.videoWatchdogTimer = CreateObject("roSGNode", "Timer")
+    ctx.videoWatchdogTimer.duration = PlaybackVideoWatchdogSeconds()
+    ctx.videoWatchdogTimer.repeat = false
+    ctx.videoWatchdogTimer.observeField("fire", "OnVideoWatchdog")
 
     ctx.loadingPulse = CreateObject("roSGNode", "Animation")
     ctx.loadingPulse.duration = 0.7

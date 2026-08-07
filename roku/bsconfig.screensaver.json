@@ -27,6 +27,7 @@
     "components/playback/PlaybackCanvas.xml",
     "components/playback/PlaybackStatusOverlay.xml",
     "components/playback/PlaybackEffects.brs",
+    "components/playback/PlaybackVideo.brs",
     "components/OverlayComponent.xml",
     "components/OverlayComponent.brs",
     "components/playback/PlaybackRing.brs",

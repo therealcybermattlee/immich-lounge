@@ -33,5 +33,13 @@
     <Poster id="main3" width="1920" height="1080" loadDisplayMode="scaleToFit"
             loadWidth="1920" loadHeight="1080"
             translation="[0,0]" opacity="0.0" />
+
+    <!-- Video/live-photo playback surface. Sits above the poster ring (the
+         entry's preview still stays committed underneath as a fallback) and
+         below the overlay/clock/weather siblings added by the scenes.
+         Kept invisible until the stream reaches "playing" to avoid a black
+         flash while buffering. -->
+    <Video id="videoPlayer" width="1920" height="1080" translation="[0,0]"
+           visible="false" enableUI="false" />
   </children>
 </component>

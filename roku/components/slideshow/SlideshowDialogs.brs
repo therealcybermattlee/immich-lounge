@@ -4,12 +4,18 @@ sub PauseForDialogForScene(ctx as Object)
     ctx.paused = true
     ctx.slideTimer.control = "stop"
     ctx.progressTimer.control = "stop"
+    PauseVideoForScene(ctx)
 end sub
 
 sub ResumeAfterDialogForScene(ctx as Object)
     ctx.top.dialog = invalid
     ctx.top.setFocus(true)
-    ResumeSlideshowForScene(ctx)
+    if ctx.videoActive then
+        ctx.paused = false
+        ResumeVideoForScene(ctx)
+    else
+        ResumeSlideshowForScene(ctx)
+    end if
 end sub
 
 sub ShowSettingsDialogForScene(ctx as Object)

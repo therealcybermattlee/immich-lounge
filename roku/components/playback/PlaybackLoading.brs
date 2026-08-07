@@ -58,7 +58,6 @@ end sub
 function TryFallbackMainPosterLoadForScene(ctx as Object) as Boolean
     if ctx.loadingMainFallbackTried then return false
     if ctx.profile = invalid or ctx.pendingEntry = invalid then return false
-    if ctx.pendingEntry.type = "video" or ctx.pendingEntry.type = "livePhoto" then return false
 
     quality = "preview"
     if ctx.profile.imageQuality <> invalid then quality = ctx.profile.imageQuality
@@ -135,5 +134,12 @@ sub CommitSlideForScene(ctx as Object, fromSlot as Integer, toSlot as Integer, e
         ctx.slideTimer.duration = interval
         ctx.slideTimer.control = "start"
         ctx.progressTimer.control = "start"
+    end if
+
+    ' Video and live-photo entries: the committed still stays underneath while
+    ' the Video node buffers and plays on top. Advance is driven by the video
+    ' reaching "finished" (or the failure fallback), not the slide timer.
+    if entry.type = "video" or entry.type = "livePhoto" then
+        StartVideoForEntryForScene(ctx, entry)
     end if
 end sub
