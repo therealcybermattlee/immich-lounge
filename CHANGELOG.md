@@ -4,6 +4,14 @@ Technical release notes for Immich Lounge live here.
 
 For a shorter user-facing summary, see [docs/website/changelog.md](./docs/website/changelog.md).
 
+## Unreleased
+
+- Added video and live-photo playback on the Roku channel and screensaver: a dedicated Video node in PlaybackCanvas plays motion above the poster ring and below the overlay/clock/weather layers, and the slideshow advances when playback finishes instead of on the slide timer.
+- Video playback authenticates with the Immich API key via ContentNode HTTP headers (never in URLs) and falls back to the asset's preview still with the normal slide interval on playback errors or a 20-second buffering watchdog timeout.
+- The screensaver always plays videos muted; the channel follows the profile's Video Audio toggle (muted by default).
+- Re-enabled the Videos, Live Photos, and Video Audio media-type toggles in the companion profile editor; editor saves no longer force these flags off.
+- Fixed blurred background posters for video entries to load the asset thumbnail instead of the unplayable video stream URL.
+
 ## 2026-04-12
 
 - Bumped Roku channel and screensaver manifests to version 1.0.0008.
