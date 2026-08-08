@@ -2,7 +2,7 @@
 # Add this service to your existing Immich docker-compose.yml.
 services:
   immich-lounge-companion:
-    image: ghcr.io/immich-lounge/immich-lounge-companion:latest
+    image: ghcr.io/therealcybermattlee/immich-lounge-companion:edge
     container_name: immich-lounge-companion
     pull_policy: always
     ports:
