@@ -54,11 +54,12 @@ else
 
         <section class="settings-card editor-card">
             <h3>Media</h3>
-            <p class="section-intro">This version is photo-first. Video-related formats stay disabled for now.</p>
+            <p class="section-intro">Choose which media types this profile includes.</p>
             <label><input type="checkbox" @bind="_profile.MediaTypes.Photos" /> Photos</label>
-            @* <label><input type="checkbox" @bind="_profile.MediaTypes.Videos" /> Videos</label> *@
-            @* <label><input type="checkbox" @bind="_profile.MediaTypes.LivePhotos" /> Live Photos</label> *@
-            @* <label><input type="checkbox" @bind="_profile.MediaTypes.VideoAudio" /> Video Audio</label> *@
+            <label><input type="checkbox" @bind="_profile.MediaTypes.Videos" /> Videos</label>
+            <label><input type="checkbox" @bind="_profile.MediaTypes.LivePhotos" /> Live Photos</label>
+            <label><input type="checkbox" @bind="_profile.MediaTypes.VideoAudio" /> Video Audio</label>
+            <p class="section-intro">Videos and live photos play to completion before the next slide. Video audio applies to the channel; the screensaver always plays muted.</p>
             <label>
                 Image Quality:
                 <select @bind="_profile.ImageQuality">
@@ -470,10 +471,6 @@ else
 
         var clone = JsonSerializer.Deserialize<ImmichLoungeCompanion.Models.Profile>(
             JsonSerializer.Serialize(_profile)) ?? new();
-
-        clone.MediaTypes.Videos = false;
-        clone.MediaTypes.LivePhotos = false;
-        clone.MediaTypes.VideoAudio = false;
 
         if (clone.Weather != null) clone.Weather.Enabled = _weatherEnabled;
 

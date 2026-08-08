@@ -41,6 +41,28 @@ public class PlaylistEntryProjectorTests
     }
 
     [TestMethod]
+    public void CreateEntries_WhenVideosEnabled_EmitsVideoEntries()
+    {
+        var profile = new Profile
+        {
+            MediaTypes = new() { Photos = true, Videos = true }
+        };
+
+        var assets = new Dictionary<string, (ImmichAsset Asset, string? SourceLabel)>
+        {
+            ["photo-1"] = (new ImmichAsset { Id = "photo-1", Type = "IMAGE" }, null),
+            ["video-1"] = (new ImmichAsset { Id = "video-1", Type = "VIDEO" }, null)
+        };
+
+        var entries = PlaylistEntryProjector.CreateEntries(assets, profile);
+
+        Assert.AreEqual(2, entries.Count);
+        var video = entries.Single(entry => entry.Id == "video-1");
+        Assert.AreEqual("video", video.Type);
+        Assert.IsNull(video.LivePhotoVideoId);
+    }
+
+    [TestMethod]
     public void CreateEntries_FiltersOutDisabledMediaTypes()
     {
         var profile = new Profile

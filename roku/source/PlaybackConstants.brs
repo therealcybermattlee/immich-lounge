@@ -20,6 +20,10 @@ function PlaybackTransitionSafetyTimeoutSeconds() as Integer
     return 10
 end function
 
+function PlaybackVideoWatchdogSeconds() as Integer
+    return 20
+end function
+
 function PlaybackLayoutRetryDelaySeconds() as Float
     return 0.05
 end function

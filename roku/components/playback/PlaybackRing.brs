@@ -47,7 +47,7 @@ sub PreloadRingForScene(ctx as Object, fromSlot as Integer)
     if n = 0 then return
     p = ctx.playlistIndex
 
-    nextUrl = BuildMediaUrl(ctx.playlist[(p + 1) mod n], ctx.profile)
+    nextUrl = BuildStillMediaUrl(ctx.playlist[(p + 1) mod n], ctx.profile)
     nextBgUrl = BuildBackgroundMediaUrl(ctx.playlist[(p + 1) mod n], ctx.profile)
     nextMainNode = ctx.mainPosters[ctx.ringNext]
     if ctx.ringNext <> ctx.activeBgSlot and nextMainNode.uri <> nextUrl then
@@ -62,7 +62,7 @@ sub PreloadRingForScene(ctx as Object, fromSlot as Integer)
     lookahead = 2
     while slot <> ctx.ringCurrent
         if slot <> fromSlot and slot <> ctx.activeBgSlot then
-            url = BuildMediaUrl(ctx.playlist[(p + lookahead) mod n], ctx.profile)
+            url = BuildStillMediaUrl(ctx.playlist[(p + lookahead) mod n], ctx.profile)
             bgUrl = BuildBackgroundMediaUrl(ctx.playlist[(p + lookahead) mod n], ctx.profile)
             mainNode = ctx.mainPosters[slot]
             if mainNode.uri <> url then
@@ -88,7 +88,7 @@ sub FinalizeRingForScene(ctx as Object)
     if n = 0 then return
 
     lookahead = ctx.ringSize - 1
-    url = BuildMediaUrl(ctx.playlist[(ctx.playlistIndex + lookahead) mod n], ctx.profile)
+    url = BuildStillMediaUrl(ctx.playlist[(ctx.playlistIndex + lookahead) mod n], ctx.profile)
     bgUrl = BuildBackgroundMediaUrl(ctx.playlist[(ctx.playlistIndex + lookahead) mod n], ctx.profile)
     mainNode = ctx.mainPosters[ctx.ringReleasedSlot]
     if mainNode.uri <> url then

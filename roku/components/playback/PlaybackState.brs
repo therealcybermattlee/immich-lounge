@@ -117,6 +117,9 @@ sub OnPausedChangedForScene(ctx as Object)
     if ctx.paused then
         ctx.slideTimer.control = "stop"
         ctx.progressTimer.control = "stop"
+        PauseVideoForScene(ctx)
+    else if ctx.videoActive then
+        ResumeVideoForScene(ctx)
     else
         ResumeSlideshowForScene(ctx)
     end if

@@ -89,7 +89,7 @@ Yes. Public setup uses the manual companion URL flow. Enter the companion host a
 
 ## Does Immich Lounge support video playback?
 
-Not yet. The current release is photo-only.
+Yes. Enable Videos (and optionally Live Photos) in a profile's Media section. Videos play to completion before the next slide. Audio is off by default and can be turned on with the Video Audio toggle; the screensaver always plays videos muted.
 
 ---
 

@@ -81,6 +81,14 @@ sub OnSlideTimer()
     OnSlideTimerForScene(m)
 end sub
 
+sub OnVideoState()
+    OnVideoStateForScene(m)
+end sub
+
+sub OnVideoWatchdog()
+    OnVideoWatchdogForScene(m)
+end sub
+
 sub OnProgressTick()
     OnProgressTickForScene(m)
 end sub
