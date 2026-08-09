@@ -28,6 +28,20 @@ sub StartVideoForEntryForScene(ctx as Object, entry as Object)
     if ctx.progressBar <> invalid then ctx.progressBar.visible = false
 
     player = ctx.videoPlayer
+
+    ' Match the video surface to the committed still's fitted layout so
+    ' portrait and non-16:9 videos keep their aspect ratio (pillarboxed like
+    ' the still) instead of stretching to fill the screen.
+    still = ctx.mainPosters[ctx.ringCurrent]
+    if still <> invalid and still.width > 0 and still.height > 0 then
+        player.width = still.width
+        player.height = still.height
+        player.translation = still.translation
+    else
+        player.width = 1920
+        player.height = 1080
+        player.translation = [0, 0]
+    end if
     player.observeField("state", "OnVideoState")
     player.content = content
     player.mute = GetVideoMuteForScene(ctx)
