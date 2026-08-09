@@ -61,11 +61,16 @@ function TryFallbackMainPosterLoadForScene(ctx as Object) as Boolean
 
     quality = "preview"
     if ctx.profile.imageQuality <> invalid then quality = ctx.profile.imageQuality
-    if quality = "original" then return false
 
     if ctx.loadingToSlot < 0 or ctx.loadingToSlot >= ctx.mainPosters.Count() then return false
 
-    fallbackUrl = BuildBackgroundMediaUrl(ctx.pendingEntry, ctx.profile)
+    if quality = "original" and ctx.profile.immich <> invalid then
+        ' Originals can be undecodable on Roku (e.g. HEIC from recent iPhones),
+        ' so retry with the server-generated JPEG preview before giving up.
+        fallbackUrl = ctx.profile.immich.serverUrl + "/api/assets/" + ctx.pendingEntry.id + "/thumbnail?size=preview"
+    else
+        fallbackUrl = BuildBackgroundMediaUrl(ctx.pendingEntry, ctx.profile)
+    end if
     if fallbackUrl = invalid or fallbackUrl = "" then return false
     if fallbackUrl = ctx.loadingMediaUrl then return false
 
