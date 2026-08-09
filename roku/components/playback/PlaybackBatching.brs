@@ -17,6 +17,9 @@ end function
 
 sub FetchNextPlaylistBatchForScene(ctx as Object, isScreensaver as Boolean)
     if ctx.top.companionUrl = "" then return
+    ' A staged batch is already waiting to swap in - fetching again here would
+    ' re-stage the window currently playing and replay it at the next boundary.
+    if ctx.pendingBatchAssets <> invalid then return
     if ctx.totalPlaylistCount > 0 and ctx.totalPlaylistCount <= ctx.playlist.Count() then return
     if ctx.nextBatchTask <> invalid and ctx.nextBatchTask.control = "RUN" then return
     task = CreateObject("roSGNode", "CompanionApiTask")
