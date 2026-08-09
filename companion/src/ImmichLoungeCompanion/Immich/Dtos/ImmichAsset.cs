@@ -8,6 +8,7 @@ public class ImmichAsset
 {
     public string Id { get; set; } = "";
     public string Type { get; set; } = "";          // "IMAGE" | "VIDEO"
+    public string? Visibility { get; set; }         // "timeline" | "hidden" | "archive" | "locked"
     public string? LivePhotoVideoId { get; set; }
     [JsonPropertyName("exifInfo")]
     public ImmichExifInfo? ExifInfo { get; set; }

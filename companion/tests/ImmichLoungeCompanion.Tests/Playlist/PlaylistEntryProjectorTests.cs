@@ -41,6 +41,28 @@ public class PlaylistEntryProjectorTests
     }
 
     [TestMethod]
+    public void CreateEntries_SkipsHiddenAndLockedAssets()
+    {
+        var profile = new Profile
+        {
+            MediaTypes = new() { Photos = true, Videos = true }
+        };
+
+        var assets = new Dictionary<string, (ImmichAsset Asset, string? SourceLabel)>
+        {
+            ["visible"] = (new ImmichAsset { Id = "visible", Type = "IMAGE", Visibility = "timeline" }, null),
+            // live-photo motion clip: hidden video with no thumbnails
+            ["motion"] = (new ImmichAsset { Id = "motion", Type = "VIDEO", Visibility = "hidden" }, null),
+            ["locked"] = (new ImmichAsset { Id = "locked", Type = "IMAGE", Visibility = "locked" }, null)
+        };
+
+        var entries = PlaylistEntryProjector.CreateEntries(assets, profile);
+
+        Assert.AreEqual(1, entries.Count);
+        Assert.AreEqual("visible", entries[0].Id);
+    }
+
+    [TestMethod]
     public void CreateEntries_WhenVideosEnabled_EmitsVideoEntries()
     {
         var profile = new Profile

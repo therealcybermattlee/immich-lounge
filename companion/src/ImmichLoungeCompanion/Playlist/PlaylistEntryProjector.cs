@@ -44,6 +44,14 @@ public static class PlaylistEntryProjector
 
     private static PlaylistEntry? MapToEntry(string id, ImmichAsset asset, string? sourceLabel, MediaTypes filter)
     {
+        // Hidden assets are live-photo motion clips (no thumbnails, not meant to
+        // stand alone); locked assets are in the locked folder. Neither belongs
+        // in a slideshow even if a search or memories source returns them.
+        if (asset.Visibility is "hidden" or "locked")
+        {
+            return null;
+        }
+
         bool isLivePhoto = asset.LivePhotoVideoId != null;
         bool isVideo = asset.Type == "VIDEO";
 

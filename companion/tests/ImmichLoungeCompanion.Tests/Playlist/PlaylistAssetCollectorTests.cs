@@ -100,6 +100,7 @@ public class PlaylistAssetCollectorTests
         Assert.IsNull(capturedRequest.AlbumIds);
         Assert.IsNull(capturedRequest.PersonIds);
         Assert.IsNull(capturedRequest.TagIds);
+        Assert.AreEqual("timeline", capturedRequest.Visibility);
     }
 
     [TestMethod]
