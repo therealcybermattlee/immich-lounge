@@ -256,7 +256,7 @@ public class PlaylistAssetCollector(IImmichClient immich)
     {
         if (filter.Type == "range")
         {
-            return (filter.From, filter.To);
+            return (ToUtcDayStart(filter.From), ToUtcDayEnd(filter.To));
         }
 
         if (filter.Type == "rolling" && filter.Amount.HasValue)
@@ -270,9 +270,21 @@ public class PlaylistAssetCollector(IImmichClient immich)
                 "years"  => now.AddYears(-filter.Amount.Value),
                 _        => now
             };
-            return (from.ToString("yyyy-MM-dd"), null);
+            return (from.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'"), null);
         }
 
         return (null, null);
     }
+
+    // Immich validates takenAfter/takenBefore as full ISO 8601 datetimes and
+    // rejects bare yyyy-MM-dd dates with HTTP 400, so expand day bounds here.
+    private static string? ToUtcDayStart(string? date) =>
+        string.IsNullOrWhiteSpace(date) ? null
+        : date.Contains('T') ? date
+        : $"{date}T00:00:00.000Z";
+
+    private static string? ToUtcDayEnd(string? date) =>
+        string.IsNullOrWhiteSpace(date) ? null
+        : date.Contains('T') ? date
+        : $"{date}T23:59:59.999Z";
 }

@@ -72,8 +72,9 @@ public class PlaylistAssetCollectorTests
         Assert.AreEqual("beach sunset", assets["search-1"].SourceLabel);
         Assert.IsNotNull(capturedRequest);
         Assert.AreEqual("beach sunset", capturedRequest.Query);
-        Assert.AreEqual("2024-01-01", capturedRequest.TakenAfter);
-        Assert.AreEqual("2024-12-31", capturedRequest.TakenBefore);
+        // Immich requires full ISO datetimes; bare dates get HTTP 400.
+        Assert.AreEqual("2024-01-01T00:00:00.000Z", capturedRequest.TakenAfter);
+        Assert.AreEqual("2024-12-31T23:59:59.999Z", capturedRequest.TakenBefore);
         await client.DidNotReceive().SearchAssetsAllPagesAsync(FakeImmich, Arg.Any<SearchAssetsRequest>());
     }
 
@@ -99,6 +100,58 @@ public class PlaylistAssetCollectorTests
         Assert.IsNull(capturedRequest.AlbumIds);
         Assert.IsNull(capturedRequest.PersonIds);
         Assert.IsNull(capturedRequest.TagIds);
+    }
+
+    [TestMethod]
+    public async Task CollectAsync_RangeDateFilterSendsFullIsoDatetimes()
+    {
+        var client = Substitute.For<IImmichClient>();
+        SearchAssetsRequest? capturedRequest = null;
+        client.SearchAssetsAllPagesAsync(FakeImmich, Arg.Any<SearchAssetsRequest>())
+            .Returns(callInfo =>
+            {
+                capturedRequest = callInfo.Arg<SearchAssetsRequest>();
+                return [new ImmichAsset { Id = "range-1", Type = "IMAGE" }];
+            });
+
+        var collector = new PlaylistAssetCollector(client);
+        var profile = new Profile
+        {
+            DateFilter = new() { Type = "range", From = "2009-01-01", To = "2009-12-31" }
+        };
+
+        await collector.CollectAsync(profile, FakeImmich);
+
+        Assert.IsNotNull(capturedRequest);
+        Assert.AreEqual("2009-01-01T00:00:00.000Z", capturedRequest.TakenAfter);
+        Assert.AreEqual("2009-12-31T23:59:59.999Z", capturedRequest.TakenBefore);
+    }
+
+    [TestMethod]
+    public async Task CollectAsync_RollingDateFilterSendsFullIsoDatetime()
+    {
+        var client = Substitute.For<IImmichClient>();
+        SearchAssetsRequest? capturedRequest = null;
+        client.SearchAssetsAllPagesAsync(FakeImmich, Arg.Any<SearchAssetsRequest>())
+            .Returns(callInfo =>
+            {
+                capturedRequest = callInfo.Arg<SearchAssetsRequest>();
+                return [new ImmichAsset { Id = "rolling-1", Type = "IMAGE" }];
+            });
+
+        var collector = new PlaylistAssetCollector(client);
+        var profile = new Profile
+        {
+            DateFilter = new() { Type = "rolling", Amount = 8, Unit = "weeks" }
+        };
+
+        await collector.CollectAsync(profile, FakeImmich);
+
+        Assert.IsNotNull(capturedRequest);
+        Assert.IsNotNull(capturedRequest.TakenAfter);
+        StringAssert.Matches(capturedRequest.TakenAfter, new System.Text.RegularExpressions.Regex(
+            @"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$"));
+        Assert.IsNull(capturedRequest.TakenBefore);
     }
 
     [TestMethod]
