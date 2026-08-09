@@ -6,6 +6,7 @@ For a shorter user-facing summary, see [docs/website/changelog.md](./docs/websit
 
 ## Unreleased
 
+- Fixed date-filtered playlists never building: Immich rejects bare yyyy-MM-dd values for takenAfter/takenBefore with HTTP 400, so date bounds are now sent as full ISO 8601 datetimes.
 - Fixed slideshows replaying the same playlist head: shuffled playlist rebuilds now take a fresh shuffle whenever library content changed, instead of preserving a frozen order that every version-reset offset snapped back to. Unchanged content still keeps a stable order and playlist version.
 - Added a Date Filter section to the profile editor exposing the existing range and rolling date filters, with new validation.
 - Added Immich smart (machine-learning) text search as a content source: enter search terms in the profile editor and matching assets join the playlist. Uses POST /api/search/smart with all-page pagination and respects the profile date filter.

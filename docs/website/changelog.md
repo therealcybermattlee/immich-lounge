@@ -10,6 +10,7 @@ For technical release details, see [CHANGELOG.md](https://github.com/immich-loun
 
 ## Unreleased
 
+- Date-filtered profiles now load correctly (date bounds were being rejected by Immich, so their playlists never finished building).
 - Slideshows now rotate through the whole library properly instead of repeating the same first photos after refreshes.
 - Profiles can limit photos to a date range or a rolling window (e.g. the last 12 months) from the new Date Filter section.
 - Profiles can include smart searches ("beach sunset", "dog") as content sources, powered by Immich's machine-learning search.
