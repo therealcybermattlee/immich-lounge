@@ -46,8 +46,62 @@ public class ProfileValidator : IProfileValidator
             return "Minimum file size must be 0 KB or greater.";
         }
 
+        var dateFilterError = ValidateDateFilter(profile.DateFilter);
+        if (dateFilterError != null)
+        {
+            return dateFilterError;
+        }
+
         return profile.ValidateAssetFilter();
     }
+
+    private static string? ValidateDateFilter(DateFilter? filter)
+    {
+        if (filter == null)
+        {
+            return null;
+        }
+
+        if (filter.Type == "range")
+        {
+            if (string.IsNullOrWhiteSpace(filter.From) && string.IsNullOrWhiteSpace(filter.To))
+            {
+                return "Date filter range needs a from or to date.";
+            }
+
+            if (!IsIsoDateOrEmpty(filter.From) || !IsIsoDateOrEmpty(filter.To))
+            {
+                return "Date filter dates must use the yyyy-MM-dd format.";
+            }
+
+            if (System.DateOnly.TryParse(filter.From, out var from) &&
+                System.DateOnly.TryParse(filter.To, out var to) &&
+                from > to)
+            {
+                return "Date filter from date must not be after the to date.";
+            }
+
+            return null;
+        }
+
+        if (filter.Type == "rolling")
+        {
+            if (filter.Amount is not >= 1)
+            {
+                return "Rolling date filter amount must be 1 or greater.";
+            }
+
+            return filter.Unit is "days" or "weeks" or "months" or "years"
+                ? null
+                : "Rolling date filter unit must be days, weeks, months, or years.";
+        }
+
+        return "Invalid dateFilter type. Must be range or rolling.";
+    }
+
+    private static bool IsIsoDateOrEmpty(string? value) =>
+        string.IsNullOrWhiteSpace(value) ||
+        System.DateOnly.TryParseExact(value, "yyyy-MM-dd", out _);
 
     private static bool IsMediaTypesValid(MediaTypes m) => m.Photos || m.Videos || m.LivePhotos;
     private static bool IsTransitionEffectValid(string e) =>

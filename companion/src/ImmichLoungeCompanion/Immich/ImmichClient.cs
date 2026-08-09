@@ -137,6 +137,35 @@ public class ImmichClient(IHttpClientFactory httpClientFactory, ILogger<ImmichCl
         return allAssets;
     }
 
+    public async Task<List<ImmichAsset>> SmartSearchAllPagesAsync(
+        ImmichSettings settings, SmartSearchRequest request)
+    {
+        var (client, baseUrl) = BuildClient(settings);
+        var allAssets = new List<ImmichAsset>();
+        request.Page = 1;
+        while (true)
+        {
+            var body = JsonSerializer.Serialize(request, JsonOptions);
+            var req = ApiRequest(HttpMethod.Post, baseUrl, "api/search/smart", settings.ApiKey);
+            req.Content = new StringContent(body, System.Text.Encoding.UTF8, "application/json");
+            var response = await client.SendAsync(req);
+            await EnsureSuccessAsync(response, $"POST /api/search/smart page={request.Page}");
+            var result = await response.Content.ReadFromJsonAsync<SearchAssetsResponse>(JsonOptions);
+            if (result?.Assets.Items is { Count: > 0 } items)
+            {
+                allAssets.AddRange(items);
+            }
+
+            if (result?.Assets.NextPage == null)
+            {
+                break;
+            }
+
+            request.Page = int.Parse(result.Assets.NextPage);
+        }
+        return allAssets;
+    }
+
     public async Task<List<ImmichMemory>> GetMemoriesAsync(ImmichSettings settings, DateOnly date)
     {
         var (client, baseUrl) = BuildClient(settings);

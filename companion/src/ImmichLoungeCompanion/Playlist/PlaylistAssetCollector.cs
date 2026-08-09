@@ -91,6 +91,13 @@ public class PlaylistAssetCollector(IImmichClient immich)
     {
         ct.ThrowIfCancellationRequested();
 
+        if (rule.Type == AssetFilterConditionType.Search)
+        {
+            var smartRequest = BuildSmartSearchRequest(rule, dateFilter);
+            var searchAssets = await immich.SmartSearchAllPagesAsync(immichSettings, smartRequest);
+            return ToAssetDictionary(searchAssets, rule.Label);
+        }
+
         var request = BuildSearchRequest(rule, dateFilter);
         var assets = await immich.SearchAssetsAllPagesAsync(immichSettings, request);
         var sourceLabel = rule.Type == AssetFilterConditionType.Album ? rule.Label : null;
@@ -224,14 +231,35 @@ public class PlaylistAssetCollector(IImmichClient immich)
         return request;
     }
 
+    private static SmartSearchRequest BuildSmartSearchRequest(AssetFilterRule rule, DateFilter? dateFilter)
+    {
+        var request = new SmartSearchRequest { Query = rule.Id ?? "" };
+
+        if (dateFilter != null)
+        {
+            var (takenAfter, takenBefore) = ResolveDateBounds(dateFilter);
+            request.TakenAfter = takenAfter;
+            request.TakenBefore = takenBefore;
+        }
+
+        return request;
+    }
+
     private static void ApplyDateFilter(SearchAssetsRequest request, DateFilter filter)
+    {
+        var (takenAfter, takenBefore) = ResolveDateBounds(filter);
+        request.TakenAfter = takenAfter;
+        request.TakenBefore = takenBefore;
+    }
+
+    private static (string? TakenAfter, string? TakenBefore) ResolveDateBounds(DateFilter filter)
     {
         if (filter.Type == "range")
         {
-            request.TakenAfter = filter.From;
-            request.TakenBefore = filter.To;
+            return (filter.From, filter.To);
         }
-        else if (filter.Type == "rolling" && filter.Amount.HasValue)
+
+        if (filter.Type == "rolling" && filter.Amount.HasValue)
         {
             var now = DateTime.UtcNow;
             var from = filter.Unit switch
@@ -242,7 +270,9 @@ public class PlaylistAssetCollector(IImmichClient immich)
                 "years"  => now.AddYears(-filter.Amount.Value),
                 _        => now
             };
-            request.TakenAfter = from.ToString("yyyy-MM-dd");
+            return (from.ToString("yyyy-MM-dd"), null);
         }
+
+        return (null, null);
     }
 }

@@ -6,6 +6,9 @@ For a shorter user-facing summary, see [docs/website/changelog.md](./docs/websit
 
 ## Unreleased
 
+- Fixed slideshows replaying the same playlist head: shuffled playlist rebuilds now take a fresh shuffle whenever library content changed, instead of preserving a frozen order that every version-reset offset snapped back to. Unchanged content still keeps a stable order and playlist version.
+- Added a Date Filter section to the profile editor exposing the existing range and rolling date filters, with new validation.
+- Added Immich smart (machine-learning) text search as a content source: enter search terms in the profile editor and matching assets join the playlist. Uses POST /api/search/smart with all-page pagination and respects the profile date filter.
 - Added video and live-photo playback on the Roku channel and screensaver: a dedicated Video node in PlaybackCanvas plays motion above the poster ring and below the overlay/clock/weather layers, and the slideshow advances when playback finishes instead of on the slide timer.
 - Video playback authenticates with the Immich API key via ContentNode HTTP headers (never in URLs) and falls back to the asset's preview still with the normal slide interval on playback errors or a 20-second buffering watchdog timeout.
 - The screensaver always plays videos muted; the channel follows the profile's Video Audio toggle (muted by default).

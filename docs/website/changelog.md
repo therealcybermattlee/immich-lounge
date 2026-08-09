@@ -10,6 +10,9 @@ For technical release details, see [CHANGELOG.md](https://github.com/immich-loun
 
 ## Unreleased
 
+- Slideshows now rotate through the whole library properly instead of repeating the same first photos after refreshes.
+- Profiles can limit photos to a date range or a rolling window (e.g. the last 12 months) from the new Date Filter section.
+- Profiles can include smart searches ("beach sunset", "dog") as content sources, powered by Immich's machine-learning search.
 - Videos and live photos can now play on the Roku channel and screensaver. Enable them per profile in the companion's Media section.
 - Videos play to completion before the next slide. Sound is off by default and can be enabled with the new Video Audio toggle; the screensaver always plays videos muted.
 - If a video fails to load, the slideshow shows its preview image and moves on instead of getting stuck.
