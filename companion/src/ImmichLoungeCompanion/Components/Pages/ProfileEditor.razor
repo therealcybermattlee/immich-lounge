@@ -34,10 +34,28 @@ else
     <div class="editor-grid">
         <section class="settings-card editor-card">
             <h3>Content Sources</h3>
-            <p class="section-intro">Choose which albums, people, tags, and memories feed this profile.</p>
+            <p class="section-intro">Choose which albums, people, tags, searches, and memories feed this profile.</p>
             <SourcePicker SourceType="album" @bind-Selected="_profile.ContentSources" />
             <SourcePicker SourceType="person" @bind-Selected="_profile.ContentSources" />
             <SourcePicker SourceType="tag"    @bind-Selected="_profile.ContentSources" />
+            <div class="source-picker">
+                <div class="chips">
+                    @foreach (var search in _profile.ContentSources.Where(s => s.Type == "search").ToList())
+                    {
+                        <span class="chip">
+                            @search.Label
+                            <button @onclick="() => RemoveSearchSource(search)">×</button>
+                        </span>
+                    }
+                </div>
+                <input @bind="_newSearchTerms" @bind:event="oninput"
+                       placeholder="Smart search (e.g. beach sunset)..." class="search-input" />
+                <div class="btn-row">
+                    <button type="button" class="btn btn-secondary" @onclick="AddSearchSource"
+                            disabled="@string.IsNullOrWhiteSpace(_newSearchTerms)">Add Search</button>
+                </div>
+            </div>
+            <p class="section-intro">Smart search uses Immich's machine-learning search and needs ML enabled on the Immich server.</p>
             <label>
                 <input type="checkbox" @bind="_memoriesEnabled" /> Include Memories (On This Day)
             </label>
@@ -50,6 +68,43 @@ else
                     <span>Matched @_matchCount.Value assets</span>
                 }
             </div>
+        </section>
+
+        <section class="settings-card editor-card">
+            <h3>Date Filter</h3>
+            <p class="section-intro">Limit this profile to a time period. Applies on top of the content sources above.</p>
+            <label>
+                Mode:
+                <select value="@DateFilterMode" @onchange="OnDateFilterModeChanged">
+                    <option value="none">All dates</option>
+                    <option value="range">Date range</option>
+                    <option value="rolling">Rolling window</option>
+                </select>
+            </label>
+            @if (_profile.DateFilter?.Type == "range")
+            {
+                <div class="settings-field-grid">
+                    <label>From: <input type="date" value="@_profile.DateFilter.From" @onchange="@(e => _profile.DateFilter.From = Convert.ToString(e.Value))" /></label>
+                    <label>To: <input type="date" value="@_profile.DateFilter.To" @onchange="@(e => _profile.DateFilter.To = Convert.ToString(e.Value))" /></label>
+                </div>
+                <p class="section-intro">Leave one side empty for an open-ended range.</p>
+            }
+            else if (_profile.DateFilter?.Type == "rolling")
+            {
+                <div class="settings-field-grid">
+                    <label>Last: <input type="number" min="1" max="100" value="@(_profile.DateFilter.Amount ?? 12)" @onchange="OnRollingAmountChanged" /></label>
+                    <label>
+                        Unit:
+                        <select @bind="_profile.DateFilter.Unit">
+                            <option value="days">Days</option>
+                            <option value="weeks">Weeks</option>
+                            <option value="months">Months</option>
+                            <option value="years">Years</option>
+                        </select>
+                    </label>
+                </div>
+                <p class="section-intro">Always shows the most recent period, e.g. the last 12 months.</p>
+            }
         </section>
 
         <section class="settings-card editor-card">
@@ -247,6 +302,7 @@ else
 
     private HttpClient Http => HttpFactory.CreateClient("local");
     private ImmichLoungeCompanion.Models.Profile? _profile;
+    private string _newSearchTerms = "";
     private bool _memoriesEnabled;
     private bool _weatherEnabled;
     private string _locationQuery = "";
@@ -293,6 +349,43 @@ else
         _initialSnapshot = BuildSnapshot();
         _loadedProfileId = Id;
         _skipNavigationPrompt = false;
+    }
+
+    private string DateFilterMode => _profile?.DateFilter?.Type ?? "none";
+
+    private void OnDateFilterModeChanged(ChangeEventArgs e)
+    {
+        if (_profile == null) return;
+        var mode = Convert.ToString(e.Value);
+        _profile.DateFilter = mode switch
+        {
+            "range"   => new() { Type = "range" },
+            "rolling" => new() { Type = "rolling", Amount = 12, Unit = "months" },
+            _         => null
+        };
+    }
+
+    private void OnRollingAmountChanged(ChangeEventArgs e)
+    {
+        if (_profile?.DateFilter == null) return;
+        _profile.DateFilter.Amount = TryParseInt(e.Value, out var parsed) && parsed >= 1 ? parsed : 1;
+    }
+
+    private void AddSearchSource()
+    {
+        if (_profile == null) return;
+        var terms = _newSearchTerms.Trim();
+        if (terms.Length == 0) return;
+        if (!_profile.ContentSources.Any(s => s.Type == "search" && string.Equals(s.Id, terms, StringComparison.OrdinalIgnoreCase)))
+        {
+            _profile.ContentSources.Add(new() { Type = "search", Id = terms, Label = terms });
+        }
+        _newSearchTerms = "";
+    }
+
+    private void RemoveSearchSource(ImmichLoungeCompanion.Models.ContentSource source)
+    {
+        _profile?.ContentSources.Remove(source);
     }
 
     private async ValueTask ConfirmInternalNavigationAsync(LocationChangingContext context)

@@ -15,5 +15,7 @@ public interface IImmichClient
     Task<List<ImmichTag>> GetTagsAsync(ImmichSettings settings);
     /// <summary>Fetches ALL pages for a single source. Applies date filter if provided.</summary>
     Task<List<ImmichAsset>> SearchAssetsAllPagesAsync(ImmichSettings settings, SearchAssetsRequest request);
+    /// <summary>Fetches ALL pages of an Immich smart (ML text) search.</summary>
+    Task<List<ImmichAsset>> SmartSearchAllPagesAsync(ImmichSettings settings, SmartSearchRequest request);
     Task<List<ImmichMemory>> GetMemoriesAsync(ImmichSettings settings, DateOnly date);
 }

@@ -48,6 +48,36 @@ public class PlaylistAssetCollectorTests
     }
 
     [TestMethod]
+    public async Task CollectAsync_SearchSourceUsesSmartSearchWithDateBounds()
+    {
+        var client = Substitute.For<IImmichClient>();
+        SmartSearchRequest? capturedRequest = null;
+        client.SmartSearchAllPagesAsync(FakeImmich, Arg.Any<SmartSearchRequest>())
+            .Returns(callInfo =>
+            {
+                capturedRequest = callInfo.Arg<SmartSearchRequest>();
+                return [new ImmichAsset { Id = "search-1", Type = "IMAGE" }];
+            });
+
+        var collector = new PlaylistAssetCollector(client);
+        var profile = new Profile
+        {
+            ContentSources = [new() { Type = "search", Id = "beach sunset", Label = "beach sunset" }],
+            DateFilter = new() { Type = "range", From = "2024-01-01", To = "2024-12-31" }
+        };
+
+        var assets = await collector.CollectAsync(profile, FakeImmich);
+
+        Assert.AreEqual(1, assets.Count);
+        Assert.AreEqual("beach sunset", assets["search-1"].SourceLabel);
+        Assert.IsNotNull(capturedRequest);
+        Assert.AreEqual("beach sunset", capturedRequest.Query);
+        Assert.AreEqual("2024-01-01", capturedRequest.TakenAfter);
+        Assert.AreEqual("2024-12-31", capturedRequest.TakenBefore);
+        await client.DidNotReceive().SearchAssetsAllPagesAsync(FakeImmich, Arg.Any<SearchAssetsRequest>());
+    }
+
+    [TestMethod]
     public async Task CollectAsync_NoRulesFetchesAllAssets()
     {
         var client = Substitute.For<IImmichClient>();

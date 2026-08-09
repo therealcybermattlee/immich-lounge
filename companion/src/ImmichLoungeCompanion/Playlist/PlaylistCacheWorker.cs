@@ -42,7 +42,16 @@ public class PlaylistCacheWorker(
             var assets = await builder.BuildAsync(profile, ct);
             if (profile.Slideshow.Shuffle && existing?.Assets.Count > 0)
             {
-                assets = PlaylistShuffleOrder.PreserveExistingOrder(existing.Assets, assets);
+                // Keep the existing order only when the library content is unchanged,
+                // so the version stays stable and Roku window offsets remain valid.
+                // When content changed, keep the builder's fresh shuffle instead of
+                // preserve-and-append: version resets snap clients back to offset 0,
+                // and a frozen order would replay the same playlist head every time.
+                var preserved = PlaylistShuffleOrder.PreserveExistingOrder(existing.Assets, assets);
+                if (preserved.SequenceEqual(existing.Assets))
+                {
+                    assets = preserved;
+                }
             }
 
             var playlistVersion = existing?.PlaylistVersion;

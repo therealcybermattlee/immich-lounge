@@ -131,6 +131,9 @@ public static class ProfileAssetFilterExtensions
             case "tag":
                 conditionType = AssetFilterConditionType.Tag;
                 return true;
+            case "search":
+                conditionType = AssetFilterConditionType.Search;
+                return true;
             default:
                 conditionType = default;
                 return false;
